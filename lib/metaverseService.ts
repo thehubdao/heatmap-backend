@@ -3,35 +3,42 @@ import { Metaverse, metaverseObject } from '../types/metaverse'
 import {
     getMetaverseAddress,
     metaverseUrl,
-    heatmapMvLandsPerRequest
+    heatmapMvLandsPerRequest,
 } from './utils/metaverseUtils'
-
 
 let chunkSize = 0
 
-let metaverses: Record<Metaverse, any>={
-    'somnium-space':undefined,
+let metaverses: Record<Metaverse, any> = {
+    'somnium-space': undefined,
     sandbox: undefined,
     decentraland: undefined,
     'axie-infinity': undefined,
-
 }
 
 const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
-    const response = (
-        await axios.get(
-            `${metaverseUrl(metaverse)}/${metaverse==="somnium-space"?"map":"requestMap"}?from=${i}&size=${heatmapMvLandsPerRequest[metaverse].lands}`,
-            {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                },
-            }
-        )
-    ).data
+    let response: any = await axios.get(
+        `${metaverseUrl(metaverse)}/${
+            metaverse === 'somnium-space' ? 'map' : 'requestMap'
+        }?from=${i}&size=${
+            heatmapMvLandsPerRequest[metaverse].lands
+        }&reduced=true`,
+        {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+            },
+        }
+    )
+    response = response.data as any
     let tokenIds = Object.keys(response)
     if (tokenIds.length < 1) return
-    console.log('Response',Object.keys(response).length, new Date(),i,heatmapMvLandsPerRequest[metaverse].lands)
+    console.log(
+        'Response',
+        Object.keys(response).length,
+        new Date(),
+        i,
+        heatmapMvLandsPerRequest[metaverse].lands
+    )
     let ores,
         cnt = 0,
         metaverseAddress = getMetaverseAddress(metaverse)
@@ -40,7 +47,9 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
             try {
                 ores = await axios({
                     method: 'post',
-                    url: 'https://services.itrmachines.com/test-opensea/service/getTokens',
+                    url:
+                        process.env.OPENSEA_SERVICE_URL +
+                        '/service/getTokens',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -70,6 +79,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
             } catch (error) {
                 ores = undefined
                 cnt = cnt + 1
+                console.log('Error trying again...', error)
             }
         } while (ores == undefined && cnt < 10)
     }
@@ -95,19 +105,18 @@ const arrayFromAsync = async (asyncIterable: AsyncGenerator) => {
     return results
 }
 
-export const requestMetaverseLands = (metaverse: Metaverse) =>
-   {
+export const requestMetaverseLands = (metaverse: Metaverse) => {
     chunkSize = heatmapMvLandsPerRequest[metaverse].lands
     return arrayFromAsync(
         iterateAllAsync((i: number) => requestMetaverseMap(i, metaverse))
-    )}
+    )
+}
 
 export const getMetaverses = () => metaverses
 
-
 export const updateMetaverses = async () => {
-    for (let metaverse of Object.keys(metaverseObject))
-        {metaverses[metaverse as Metaverse] = await requestMetaverseLands(
+    for (let metaverse of Object.keys(metaverseObject)) {
+        metaverses[metaverse as Metaverse] = await requestMetaverseLands(
             metaverse as Metaverse
         )
     }

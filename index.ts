@@ -16,4 +16,4 @@ io.on('connection', (socket: Socket) => {
     defineHandlers(socket, socketMessagesController(socket))
 })
 
-server.listen(3001)
+server.listen(3005)
