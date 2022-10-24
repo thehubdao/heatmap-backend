@@ -5,13 +5,13 @@ config()
 
 export const heatmapMvLandsPerRequest = {
     sandbox: {
-        lands: 2000,
+        lands: 1000,
     },
     decentraland: {
         lands: 1200,
     },
     'axie-infinity': { lands: 1200 },
-    'somnium-space': { lands: 500 },
+    'somnium-space': { lands: 200 },
 }
 
 export const getMetaverseAddress = (metaverse: Metaverse) => {

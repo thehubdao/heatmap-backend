@@ -16,29 +16,44 @@ let metaverses: Record<Metaverse, any> = {
 }
 
 const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
-    let response: any = await axios.get(
-        `${metaverseUrl(metaverse)}/${
-            metaverse === 'somnium-space' ? 'map' : 'requestMap'
-        }?from=${i}&size=${
+
+    let response: any
+    let tokenIds
+
+    try {
+        response = await axios.get(
+            `${metaverseUrl(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'
+            }?from=${i}&size=${heatmapMvLandsPerRequest[metaverse].lands
+            }&reduced=true`,
+            {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                },
+            }
+        )
+
+        response = response.data as any
+        tokenIds = Object.keys(response)
+        if (tokenIds.length < 1) return
+        console.log(
+            'Response',
+            Object.keys(response).length,
+            new Date(),
+            i,
             heatmapMvLandsPerRequest[metaverse].lands
-        }&reduced=true`,
-        {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-            },
-        }
-    )
-    response = response.data as any
-    let tokenIds = Object.keys(response)
-    if (tokenIds.length < 1) return
-    console.log(
-        'Response',
-        Object.keys(response).length,
-        new Date(),
-        i,
-        heatmapMvLandsPerRequest[metaverse].lands
-    )
+        )
+    } catch {
+        console.log(
+            `${metaverseUrl(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'
+            }?from=${i}&size=${heatmapMvLandsPerRequest[metaverse].lands
+            }&reduced=true`,
+            'Empty array'
+        )
+        response = {}
+    }
+
+
     let ores,
         cnt = 0,
         metaverseAddress = getMetaverseAddress(metaverse)
@@ -68,7 +83,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
                                 : undefined
                         response[value.token_id].percent = value.current_price
                             ? 100 *
-                              (value.current_price.eth_price / pred_price - 1)
+                            (value.current_price.eth_price / pred_price - 1)
                             : undefined
                     }
                     response[value.token_id].best_offered_price_eth =
