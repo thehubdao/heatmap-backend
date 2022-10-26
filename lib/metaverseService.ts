@@ -97,10 +97,7 @@ const requestMetaverseMap = async (
     }
     renderMetaverseChunk(socket, response)
 
-    if (i == chunkSize) {
-        console.log('Render finish')
-        socket.emit('render-finish')
-    }
+
     return response
 }
 
@@ -125,10 +122,12 @@ const arrayFromAsync = async (asyncIterable: AsyncGenerator) => {
 
 export const renderMetaverse = async (socket: Socket, metaverse: Metaverse) => {
     chunkSize = heatmapMvLandsPerRequest[metaverse].lands
-    console.log(chunkSize)
-    arrayFromAsync(
+    await arrayFromAsync(
         iterateAllAsync((i: number) =>
             requestMetaverseMap(socket, i, metaverse)
         )
     )
+        console.log('Render finish')
+        socket.emit('render-finish')
+    
 }

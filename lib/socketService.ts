@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io'
-import { Metaverse } from '../types/metaverse'
+
 
 export const renderMetaverseChunk = (
     socket: Socket,
