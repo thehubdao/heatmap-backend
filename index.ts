@@ -4,16 +4,19 @@ import { Socket, Server } from 'socket.io'
 import { defineHandlers } from './lib/utils/socketUtils'
 import { socketMessagesController } from './src/controller/socketMessagesController'
 import './src/process/metaverseProcess'
+import httpProxy from 'http-proxy'
 
 const app = express()
 
 const server = http.createServer(app)
 
-const io = new Server(server)
+const io = new Server(server, { path: '/heatmap-backend' })
+
+const port: number = (process.env.PORT as unknown as number) || 3005
 
 io.on('connection', (socket: Socket) => {
     console.log('Connection')
     defineHandlers(socket, socketMessagesController(socket))
 })
 
-server.listen(process.env.PORT || 3005)
+server.listen(port)
