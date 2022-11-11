@@ -4,7 +4,7 @@ import { Socket, Server } from 'socket.io'
 import { defineHandlers } from './lib/utils/socketUtils'
 import { socketMessagesController } from './src/controller/socketMessagesController'
 import './src/process/metaverseProcess'
-import httpProxy from 'http-proxy'
+//import httpProxy from 'http-proxy'
 
 const app = express()
 
