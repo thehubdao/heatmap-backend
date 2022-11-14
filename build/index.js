@@ -9,11 +9,16 @@ const socket_io_1 = require("socket.io");
 const socketUtils_1 = require("./lib/utils/socketUtils");
 const socketMessagesController_1 = require("./src/controller/socketMessagesController");
 require("./src/process/metaverseProcess");
-const app = express_1.default();
+//import httpProxy from 'http-proxy'
+const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
-const io = new socket_io_1.Server(server);
+const io = new socket_io_1.Server(server, {
+    path: '/heatmap-backend',
+    transports: ['websocket'],
+});
+const port = process.env.PORT || 3005;
 io.on('connection', (socket) => {
     console.log('Connection');
-    socketUtils_1.defineHandlers(socket, socketMessagesController_1.socketMessagesController(socket));
+    (0, socketUtils_1.defineHandlers)(socket, (0, socketMessagesController_1.socketMessagesController)(socket));
 });
-server.listen(3005);
+server.listen(port);

@@ -2,11 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.socketMessagesController = void 0;
 const metaverseService_1 = require("../../lib/metaverseService");
-exports.socketMessagesController = (socket) => {
+const socketMessagesController = (socket) => {
     return {
-        render: (metaverse) => {
+        render: (metaverse, checkpoint) => {
             console.log(metaverse);
-            metaverseService_1.renderMetaverse(socket, metaverse);
+            (0, metaverseService_1.renderMetaverse)(socket, metaverse, checkpoint);
         },
     };
 };
+exports.socketMessagesController = socketMessagesController;

@@ -40,7 +40,7 @@ const requestMetaverseMap = (socket, i, metaverse) => __awaiter(void 0, void 0, 
     let response;
     let tokenIds;
     try {
-        response = yield axios_1.default.get(`${metaverseUtils_1.metaverseUrl(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}&reduced=true`, {
+        response = yield axios_1.default.get(`${(0, metaverseUtils_1.metaverseUrl)(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}&reduced=true`, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
@@ -53,14 +53,14 @@ const requestMetaverseMap = (socket, i, metaverse) => __awaiter(void 0, void 0, 
         console.log('Response', Object.keys(response).length, new Date(), i, metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands);
     }
     catch (_a) {
-        console.log(`${metaverseUtils_1.metaverseUrl(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}`, 'Empty array');
+        console.log(`${(0, metaverseUtils_1.metaverseUrl)(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}`, 'Empty array');
         response = {};
     }
-    let ores, cnt = 0, metaverseAddress = metaverseUtils_1.getMetaverseAddress(metaverse);
+    let ores, cnt = 0, metaverseAddress = (0, metaverseUtils_1.getMetaverseAddress)(metaverse);
     if (metaverseAddress !== 'None') {
         do {
             try {
-                ores = yield axios_1.default({
+                ores = yield (0, axios_1.default)({
                     method: 'post',
                     url: process.env.OPENSEA_SERVICE_URL + '/service/getTokens',
                     headers: {
@@ -97,10 +97,10 @@ const requestMetaverseMap = (socket, i, metaverse) => __awaiter(void 0, void 0, 
             }
         } while (ores == undefined && cnt < 10);
     }
-    socketService_1.renderMetaverseChunk(socket, response);
+    (0, socketService_1.renderMetaverseChunk)(socket, response, i);
     return response;
 });
-function iterateAllAsync(fn, i = 0) {
+function iterateAllAsync(fn, i) {
     return __asyncGenerator(this, arguments, function* iterateAllAsync_1() {
         while (true) {
             let res = yield __await(fn(i));
@@ -131,9 +131,8 @@ const arrayFromAsync = (asyncIterable) => { var asyncIterable_1, asyncIterable_1
     }
     return results;
 }); };
-exports.renderMetaverse = (socket, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
+const renderMetaverse = (socket, metaverse, checkpoint) => __awaiter(void 0, void 0, void 0, function* () {
     chunkSize = metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands;
-    yield arrayFromAsync(iterateAllAsync((i) => requestMetaverseMap(socket, i, metaverse)));
-    console.log('Render finish');
-    socket.emit('render-finish');
+    yield arrayFromAsync(iterateAllAsync((i) => requestMetaverseMap(socket, i, metaverse), checkpoint));
 });
+exports.renderMetaverse = renderMetaverse;

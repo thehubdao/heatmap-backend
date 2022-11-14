@@ -1,4 +1,4 @@
-ARG NODE_VERSION=14.17.6
+ARG NODE_VERSION=16.17.0
 FROM node:${NODE_VERSION}-alpine as pkg-base
 WORKDIR /usr/src/app
 COPY . .

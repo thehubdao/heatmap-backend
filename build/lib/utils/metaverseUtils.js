@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.metaverseUrl = exports.getMetaverseAddress = exports.heatmapMvLandsPerRequest = void 0;
 const dotenv_1 = require("dotenv");
-dotenv_1.config();
+(0, dotenv_1.config)();
 exports.heatmapMvLandsPerRequest = {
     sandbox: {
         lands: 1000,
@@ -13,7 +13,7 @@ exports.heatmapMvLandsPerRequest = {
     'axie-infinity': { lands: 1200 },
     'somnium-space': { lands: 200 },
 };
-exports.getMetaverseAddress = (metaverse) => {
+const getMetaverseAddress = (metaverse) => {
     switch (metaverse) {
         case 'sandbox':
             return '0x5cc5b05a8a13e3fbdb0bb9fccd98d38e50f90c38';
@@ -25,7 +25,8 @@ exports.getMetaverseAddress = (metaverse) => {
             return 'None';
     }
 };
-exports.metaverseUrl = (metaverse) => {
+exports.getMetaverseAddress = getMetaverseAddress;
+const metaverseUrl = (metaverse) => {
     const urls = {
         'somnium-space': process.env.SOMNIUM_URL,
         sandbox: process.env.SANDBOX_URL,
@@ -34,3 +35,4 @@ exports.metaverseUrl = (metaverse) => {
     };
     return urls[metaverse];
 };
+exports.metaverseUrl = metaverseUrl;

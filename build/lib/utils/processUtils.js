@@ -10,15 +10,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resetAtMidnight = exports.timeout = void 0;
-exports.timeout = (ms) => {
+const timeout = (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
-exports.resetAtMidnight = (process) => __awaiter(void 0, void 0, void 0, function* () {
+exports.timeout = timeout;
+const resetAtMidnight = (process) => __awaiter(void 0, void 0, void 0, function* () {
     var now = new Date();
     var night = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
     var msToMidnight = night.getTime() - now.getTime();
     yield process();
-    exports.timeout(10000).then(() => __awaiter(void 0, void 0, void 0, function* () {
-        exports.resetAtMidnight(process);
+    (0, exports.timeout)(10000).then(() => __awaiter(void 0, void 0, void 0, function* () {
+        (0, exports.resetAtMidnight)(process);
     }));
 });
+exports.resetAtMidnight = resetAtMidnight;
