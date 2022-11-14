@@ -21,4 +21,4 @@ io.on('connection', (socket) => {
     console.log('Connection');
     (0, socketUtils_1.defineHandlers)(socket, (0, socketMessagesController_1.socketMessagesController)(socket));
 });
-server.listen(port);
+server.listen(port, () => { console.log("Sockets listening on port: " + port); });

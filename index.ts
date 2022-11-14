@@ -22,4 +22,4 @@ io.on('connection', (socket: Socket) => {
     defineHandlers(socket, socketMessagesController(socket))
 })
 
-server.listen(port)
+server.listen(port,()=>{console.log("Sockets listening on port: "+ port)})
