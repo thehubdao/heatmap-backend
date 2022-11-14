@@ -10,7 +10,10 @@ const app = express()
 
 const server = http.createServer(app)
 
-const io = new Server(server, { path: '/heatmap-backend' })
+const io = new Server(server, {
+    path: '/heatmap-backend',
+    transports: ['websocket'],
+})
 
 const port: number = (process.env.PORT as unknown as number) || 3005
 

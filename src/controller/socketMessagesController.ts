@@ -5,9 +5,9 @@ import { Controller } from '../../types/socket'
 
 export const socketMessagesController = (socket: Socket) => {
     return {
-        render:  (metaverse: Metaverse) => {
+        render: (metaverse: Metaverse, checkpoint: number) => {
             console.log(metaverse)
-             renderMetaverse(socket, metaverse)
+            renderMetaverse(socket, metaverse, checkpoint)
         },
     } as Controller
 }
