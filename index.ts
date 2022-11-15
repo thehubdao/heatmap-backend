@@ -12,7 +12,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     path: '/heatmap-backend',
-    transports: ['websocket'],
+    transports: ['websocket', 'polling'],
 })
 
 const port: number = (process.env.PORT as unknown as number) || 3005
@@ -22,4 +22,10 @@ io.on('connection', (socket: Socket) => {
     defineHandlers(socket, socketMessagesController(socket))
 })
 
-server.listen(port,()=>{console.log("Sockets listening on port: "+ port)})
+server.listen(port, () => {
+    console.log('Sockets listening on port: ' + port)
+})
+
+server.on('upgrade', (request, socket, head) => {
+    console.log(request, socket, head)
+})

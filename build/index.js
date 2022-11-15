@@ -14,11 +14,14 @@ const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
     path: '/heatmap-backend',
-    transports: ['websocket'],
+    transports: ['websocket', 'polling'],
 });
 const port = process.env.PORT || 3005;
 io.on('connection', (socket) => {
     console.log('Connection');
     (0, socketUtils_1.defineHandlers)(socket, (0, socketMessagesController_1.socketMessagesController)(socket));
 });
-server.listen(port, () => { console.log("Sockets listening on port: " + port); });
+server.listen(port, () => {
+    console.log('Sockets listening on port: ' + port);
+});
+server.on('upgrade', (request, socket, head) => { });
