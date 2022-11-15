@@ -3,7 +3,6 @@ import { defineHandlers } from './lib/utils/socketUtils'
 import { socketMessagesController } from './src/controller/socketMessagesController'
 import cors from 'cors'
 const app = require('express')()
-
 app.use(cors())
 const server = require('http').createServer(app)
 const Server = require('socket.io').Server
@@ -23,15 +22,4 @@ io.on('connection', (socket: Socket) => {
 
 server.listen(port, () => {
     console.log('Sockets listening on port: ' + port)
-})
-
-server.on('upgrade', (req: any, socket: any, head: any) => {
-    console.log('beautiful upgrade')
-    if (req!.url!.indexOf('/socket.io') != -1 ) {
-        console.log('socket upgrades')
-        //io.engine.handleUpgrade(req, socket, head)
-    } else {
-        console.log('destroyed')
-        socket.destroy()
-    }
 })

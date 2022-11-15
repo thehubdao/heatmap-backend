@@ -25,14 +25,3 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
     console.log('Sockets listening on port: ' + port);
 });
-server.on('upgrade', (req, socket, head) => {
-    console.log('beautiful upgrade');
-    if (req.url.indexOf('/socket.io') != -1) {
-        console.log('socket upgrades');
-        //io.engine.handleUpgrade(req, socket, head)
-    }
-    else {
-        console.log('destroyed');
-        socket.destroy();
-    }
-});
