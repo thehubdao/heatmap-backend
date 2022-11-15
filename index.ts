@@ -1,21 +1,20 @@
-import express from 'express'
-import http from 'http'
-import { Socket, Server } from 'socket.io'
+import { Socket } from 'socket.io'
 import { defineHandlers } from './lib/utils/socketUtils'
 import { socketMessagesController } from './src/controller/socketMessagesController'
-import './src/process/metaverseProcess'
-//import httpProxy from 'http-proxy'
+import cors from 'cors'
+const app = require('express')()
 
-const app = express()
-
-const server = http.createServer(app)
-
+app.use(cors())
+const server = require('http').createServer(app)
+const Server = require('socket.io').Server
+const port = process.env.PORT || 8080
 const io = new Server(server, {
-    path: '/heatmap-backend',
-    transports: ['websocket', 'polling'],
+    path: '/api/socket.io',
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
 })
-
-const port: number = (process.env.PORT as unknown as number) || 3005
 
 io.on('connection', (socket: Socket) => {
     console.log('Connection')
@@ -26,6 +25,13 @@ server.listen(port, () => {
     console.log('Sockets listening on port: ' + port)
 })
 
-server.on('upgrade', (request, socket, head) => {
-    console.log(request, socket, head)
+server.on('upgrade', (req: any, socket: any, head: any) => {
+    console.log('beautiful upgrade')
+    if (req!.url!.indexOf('/socket.io') != -1 ) {
+        console.log('socket upgrades')
+        //io.engine.handleUpgrade(req, socket, head)
+    } else {
+        console.log('destroyed')
+        socket.destroy()
+    }
 })
