@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.socketMessagesController = void 0;
-const socketService_1 = require("../../socketService");
+const socketService_1 = require("../../lib/socketService");
 const socketMessagesController = (socket) => {
     return {
         render: (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
