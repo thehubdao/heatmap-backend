@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io'
-import { renderMetaverse } from '../../socketService'
+import { renderMetaverse } from '../../lib/socketService'
 import { Metaverse } from '../../types/metaverse'
 import { Controller } from '../../types/socket'
 
