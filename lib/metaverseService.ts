@@ -1,7 +1,5 @@
 import axios from 'axios'
-import { Socket } from 'socket.io'
 import { Metaverse, metaverseObject } from '../types/metaverse'
-import { renderMetaverseChunk } from './socketService'
 import {
     getMetaverseAddress,
     metaverseUrl,
@@ -10,20 +8,22 @@ import {
 
 let chunkSize = 0
 
-const requestMetaverseMap = async (
-    socket: Socket,
-    i: number,
-    metaverse: Metaverse
-) => {
+let metaverses: Record<Metaverse, any> = {
+    'somnium-space': undefined,
+    sandbox: undefined,
+    decentraland: undefined,
+    'axie-infinity': undefined,
+}
+
+const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
+
     let response: any
     let tokenIds
 
     try {
         response = await axios.get(
-            `${metaverseUrl(metaverse)}/${
-                metaverse === 'axie-infinity' ? 'requestMap' : 'map'
-            }?from=${i}&size=${
-                heatmapMvLandsPerRequest[metaverse].lands
+            `${metaverseUrl(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'
+            }?from=${i}&size=${heatmapMvLandsPerRequest[metaverse].lands
             }&reduced=true`,
             {
                 method: 'GET',
@@ -45,13 +45,14 @@ const requestMetaverseMap = async (
         )
     } catch {
         console.log(
-            `${metaverseUrl(metaverse)}/${
-                metaverse === 'axie-infinity' ? 'requestMap' : 'map'
-            }?from=${i}&size=${heatmapMvLandsPerRequest[metaverse].lands}`,
+            `${metaverseUrl(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'
+            }?from=${i}&size=${heatmapMvLandsPerRequest[metaverse].lands
+            }&reduced=true`,
             'Empty array'
         )
         response = {}
     }
+
 
     let ores,
         cnt = 0,
@@ -61,7 +62,9 @@ const requestMetaverseMap = async (
             try {
                 ores = await axios({
                     method: 'post',
-                    url: process.env.OPENSEA_SERVICE_URL + '/service/getTokens',
+                    url:
+                        process.env.OPENSEA_SERVICE_URL +
+                        '/service/getTokens',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -80,7 +83,7 @@ const requestMetaverseMap = async (
                                 : undefined
                         response[value.token_id].percent = value.current_price
                             ? 100 *
-                              (value.current_price.eth_price / pred_price - 1)
+                            (value.current_price.eth_price / pred_price - 1)
                             : undefined
                     }
                     response[value.token_id].best_offered_price_eth =
@@ -95,9 +98,6 @@ const requestMetaverseMap = async (
             }
         } while (ores == undefined && cnt < 10)
     }
-    renderMetaverseChunk(socket, response,i)
-
-
     return response
 }
 
@@ -120,12 +120,24 @@ const arrayFromAsync = async (asyncIterable: AsyncGenerator) => {
     return results
 }
 
-export const renderMetaverse = async (socket: Socket, metaverse: Metaverse, checkpoint:number) => {
+export const requestMetaverseLands = (metaverse: Metaverse) => {
     chunkSize = heatmapMvLandsPerRequest[metaverse].lands
-    await arrayFromAsync(
-        iterateAllAsync((i: number) =>
-            requestMetaverseMap(socket, i, metaverse),checkpoint
-        )
+    return arrayFromAsync(
+        iterateAllAsync((i: number) => requestMetaverseMap(i, metaverse))
     )
     
+}
+
+export const getMetaverses = () => metaverses
+
+export const updateMetaverses = async () => {
+    for (let metaverse of Object.keys(metaverseObject)) {
+        metaverses[metaverse as Metaverse] = await requestMetaverseLands(
+            metaverse as Metaverse
+        )
+    }
+}
+
+export const getMetaverse = (metaverse: Metaverse) => {
+    return metaverses[metaverse]
 }
