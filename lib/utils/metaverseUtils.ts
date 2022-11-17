@@ -5,13 +5,17 @@ config()
 
 export const heatmapMvLandsPerRequest = {
     sandbox: {
-        lands: 1000,
+        lands: 5000,
     },
     decentraland: {
         lands: 1200,
     },
-    'axie-infinity': { lands: 1200 },
-    'somnium-space': { lands: 200 },
+    'axie-infinity': {
+        lands: 1200,
+    },
+    'somnium-space': {
+        lands: 200,
+    },
 }
 
 export const getMetaverseAddress = (metaverse: Metaverse) => {
@@ -30,9 +34,9 @@ export const getMetaverseAddress = (metaverse: Metaverse) => {
 export const metaverseUrl = (metaverse: Metaverse) => {
     const urls = {
         'somnium-space': process.env.SOMNIUM_URL,
-        sandbox: process.env.SANDBOX_URL,
-        decentraland: process.env.DECENTRALAND_URL,
         'axie-infinity': process.env.AXIE_URL,
+        decentraland: process.env.DECENTRALAND_URL,
+        sandbox: process.env.SANDBOX_URL,
     }
     return urls[metaverse]
 }

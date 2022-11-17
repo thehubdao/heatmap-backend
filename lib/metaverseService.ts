@@ -1,4 +1,6 @@
 import axios from 'axios'
+const NodeCache = require('node-cache')
+const _cache = new NodeCache()
 import { Metaverse, metaverseObject } from '../types/metaverse'
 import {
     getMetaverseAddress,
@@ -9,21 +11,22 @@ import {
 let chunkSize = 0
 
 let metaverses: Record<Metaverse, any> = {
+    decentraland: undefined,
     'somnium-space': undefined,
     sandbox: undefined,
-    decentraland: undefined,
     'axie-infinity': undefined,
 }
 
 const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
-
     let response: any
     let tokenIds
-
     try {
+        console.time('Decentraland request')
         response = await axios.get(
-            `${metaverseUrl(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'
-            }?from=${i}&size=${heatmapMvLandsPerRequest[metaverse].lands
+            `${metaverseUrl(metaverse)}/${
+                metaverse === 'axie-infinity' ? 'requestMap' : 'map'
+            }?from=${i}&size=${
+                heatmapMvLandsPerRequest[metaverse].lands
             }&reduced=true`,
             {
                 method: 'GET',
@@ -32,6 +35,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
                 },
             }
         )
+        console.timeEnd('Decentraland request')
 
         response = response.data as any
         tokenIds = Object.keys(response)
@@ -45,14 +49,15 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         )
     } catch {
         console.log(
-            `${metaverseUrl(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'
-            }?from=${i}&size=${heatmapMvLandsPerRequest[metaverse].lands
+            `${metaverseUrl(metaverse)}/${
+                metaverse === 'axie-infinity' ? 'requestMap' : 'map'
+            }?from=${i}&size=${
+                heatmapMvLandsPerRequest[metaverse].lands
             }&reduced=true`,
             'Empty array'
         )
         response = {}
     }
-
 
     let ores,
         cnt = 0,
@@ -62,9 +67,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
             try {
                 ores = await axios({
                     method: 'post',
-                    url:
-                        process.env.OPENSEA_SERVICE_URL +
-                        '/service/getTokens',
+                    url: process.env.OPENSEA_SERVICE_URL + '/service/getTokens',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -83,7 +86,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
                                 : undefined
                         response[value.token_id].percent = value.current_price
                             ? 100 *
-                            (value.current_price.eth_price / pred_price - 1)
+                              (value.current_price.eth_price / pred_price - 1)
                             : undefined
                     }
                     response[value.token_id].best_offered_price_eth =
@@ -97,11 +100,29 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
                 console.log('Error trying again...', error)
             }
         } while (ores == undefined && cnt < 10)
+
     }
-    return response
+    console.time('Cache push')
+    _cache.mset(
+        (Object.keys(response) as any).map((key: any) => {
+            return { key: metaverse + key, val: response[key] }
+        })
+    )
+
+    console.timeEnd('Cache push')
+    if (metaverses[metaverse])
+        metaverses[metaverse] = metaverses[metaverse].concat(
+            Object.keys(response).map((key) => metaverse + key)
+        )
+    else
+        metaverses[metaverse] = Object.keys(response).map(
+            (key) => metaverse + key
+        )
+    console.log(_cache.getStats())
+    return {}
 }
 
-async function* iterateAllAsync(fn: Function, i:number) {
+async function* iterateAllAsync(fn: Function, i: number) {
     while (true) {
         let res = await fn(i)
         if (!res) return
@@ -122,22 +143,24 @@ const arrayFromAsync = async (asyncIterable: AsyncGenerator) => {
 
 export const requestMetaverseLands = (metaverse: Metaverse) => {
     chunkSize = heatmapMvLandsPerRequest[metaverse].lands
+    metaverses[metaverse] = undefined
     return arrayFromAsync(
-        iterateAllAsync((i: number) => requestMetaverseMap(i, metaverse))
+        iterateAllAsync(
+            (i: number) => requestMetaverseMap(i, metaverse),
+            chunkSize
+        )
     )
-    
 }
 
 export const getMetaverses = () => metaverses
 
 export const updateMetaverses = async () => {
-    for (let metaverse of Object.keys(metaverseObject)) {
-        metaverses[metaverse as Metaverse] = await requestMetaverseLands(
-            metaverse as Metaverse
-        )
-    }
+     for (let metaverse of Object.keys(metaverseObject)) {
+        await requestMetaverseLands(metaverse as Metaverse)
+    } 
 }
 
 export const getMetaverse = (metaverse: Metaverse) => {
-    return metaverses[metaverse]
-}
+    return metaverses[metaverse]}
+
+export const cache = _cache

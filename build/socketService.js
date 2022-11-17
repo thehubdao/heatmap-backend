@@ -9,14 +9,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.socketMessagesController = void 0;
-const socketService_1 = require("../../socketService");
-const socketMessagesController = (socket) => {
-    return {
-        render: (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
-            console.log(metaverse);
-            yield (0, socketService_1.renderMetaverse)(socket, metaverse);
-        }),
-    };
-};
-exports.socketMessagesController = socketMessagesController;
+exports.renderMetaverse = void 0;
+const metaverseService_1 = require("./lib/metaverseService");
+const renderMetaverse = (socket, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
+    const metaverseKeys = Object.values((0, metaverseService_1.getMetaverse)(metaverse));
+    console.time('Redis time');
+    const lands = yield metaverseService_1.cache.mget(metaverseKeys);
+    console.log(metaverseKeys.length, Object.values(lands).length);
+    console.timeEnd('Redis time');
+    for (const land of Object.values(lands)) {
+        socket.emit('render', land);
+    }
+});
+exports.renderMetaverse = renderMetaverse;

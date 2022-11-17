@@ -5,13 +5,17 @@ const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
 exports.heatmapMvLandsPerRequest = {
     sandbox: {
-        lands: 1000,
+        lands: 5000,
     },
     decentraland: {
         lands: 1200,
     },
-    'axie-infinity': { lands: 1200 },
-    'somnium-space': { lands: 200 },
+    'axie-infinity': {
+        lands: 1200,
+    },
+    'somnium-space': {
+        lands: 200,
+    },
 };
 const getMetaverseAddress = (metaverse) => {
     switch (metaverse) {
@@ -29,9 +33,9 @@ exports.getMetaverseAddress = getMetaverseAddress;
 const metaverseUrl = (metaverse) => {
     const urls = {
         'somnium-space': process.env.SOMNIUM_URL,
-        sandbox: process.env.SANDBOX_URL,
-        decentraland: process.env.DECENTRALAND_URL,
         'axie-infinity': process.env.AXIE_URL,
+        decentraland: process.env.DECENTRALAND_URL,
+        sandbox: process.env.SANDBOX_URL,
     };
     return urls[metaverse];
 };

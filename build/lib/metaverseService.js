@@ -31,21 +31,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.renderMetaverse = void 0;
+exports.cache = exports.getMetaverse = exports.updateMetaverses = exports.getMetaverses = exports.requestMetaverseLands = void 0;
 const axios_1 = __importDefault(require("axios"));
-const socketService_1 = require("./socketService");
+const NodeCache = require('node-cache');
+const _cache = new NodeCache();
+const metaverse_1 = require("../types/metaverse");
 const metaverseUtils_1 = require("./utils/metaverseUtils");
 let chunkSize = 0;
-const requestMetaverseMap = (socket, i, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
+let metaverses = {
+    decentraland: undefined,
+    'somnium-space': undefined,
+    sandbox: undefined,
+    'axie-infinity': undefined,
+};
+const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     let response;
     let tokenIds;
     try {
+        console.time('Decentraland request');
         response = yield axios_1.default.get(`${(0, metaverseUtils_1.metaverseUrl)(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}&reduced=true`, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
             },
         });
+        console.timeEnd('Decentraland request');
         response = response.data;
         tokenIds = Object.keys(response);
         if (tokenIds.length < 1)
@@ -53,7 +63,7 @@ const requestMetaverseMap = (socket, i, metaverse) => __awaiter(void 0, void 0, 
         console.log('Response', Object.keys(response).length, new Date(), i, metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands);
     }
     catch (_a) {
-        console.log(`${(0, metaverseUtils_1.metaverseUrl)(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}`, 'Empty array');
+        console.log(`${(0, metaverseUtils_1.metaverseUrl)(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}&reduced=true`, 'Empty array');
         response = {};
     }
     let ores, cnt = 0, metaverseAddress = (0, metaverseUtils_1.getMetaverseAddress)(metaverse);
@@ -97,8 +107,17 @@ const requestMetaverseMap = (socket, i, metaverse) => __awaiter(void 0, void 0, 
             }
         } while (ores == undefined && cnt < 10);
     }
-    (0, socketService_1.renderMetaverseChunk)(socket, response, i);
-    return response;
+    console.time('Cache push');
+    _cache.mset(Object.keys(response).map((key) => {
+        return { key: metaverse + key, val: response[key] };
+    }));
+    console.timeEnd('Cache push');
+    if (metaverses[metaverse])
+        metaverses[metaverse] = metaverses[metaverse].concat(Object.keys(response).map((key) => metaverse + key));
+    else
+        metaverses[metaverse] = Object.keys(response).map((key) => metaverse + key);
+    console.log(_cache.getStats());
+    return {};
 });
 function iterateAllAsync(fn, i) {
     return __asyncGenerator(this, arguments, function* iterateAllAsync_1() {
@@ -131,8 +150,22 @@ const arrayFromAsync = (asyncIterable) => { var asyncIterable_1, asyncIterable_1
     }
     return results;
 }); };
-const renderMetaverse = (socket, metaverse, checkpoint) => __awaiter(void 0, void 0, void 0, function* () {
+const requestMetaverseLands = (metaverse) => {
     chunkSize = metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands;
-    yield arrayFromAsync(iterateAllAsync((i) => requestMetaverseMap(socket, i, metaverse), checkpoint));
+    metaverses[metaverse] = undefined;
+    return arrayFromAsync(iterateAllAsync((i) => requestMetaverseMap(i, metaverse), chunkSize));
+};
+exports.requestMetaverseLands = requestMetaverseLands;
+const getMetaverses = () => metaverses;
+exports.getMetaverses = getMetaverses;
+const updateMetaverses = () => __awaiter(void 0, void 0, void 0, function* () {
+    for (let metaverse of Object.keys(metaverse_1.metaverseObject)) {
+        yield (0, exports.requestMetaverseLands)(metaverse);
+    }
 });
-exports.renderMetaverse = renderMetaverse;
+exports.updateMetaverses = updateMetaverses;
+const getMetaverse = (metaverse) => {
+    return metaverses[metaverse];
+};
+exports.getMetaverse = getMetaverse;
+exports.cache = _cache;
