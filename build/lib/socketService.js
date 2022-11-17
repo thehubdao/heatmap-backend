@@ -13,10 +13,8 @@ exports.renderMetaverse = void 0;
 const metaverseService_1 = require("./metaverseService");
 const renderMetaverse = (socket, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     const metaverseKeys = Object.values((0, metaverseService_1.getMetaverse)(metaverse));
-    console.time('Redis time');
     const lands = yield metaverseService_1.cache.mget(metaverseKeys);
     console.log(metaverseKeys.length, Object.values(lands).length);
-    console.timeEnd('Redis time');
     for (const land of Object.values(lands)) {
         socket.emit('render', land);
     }

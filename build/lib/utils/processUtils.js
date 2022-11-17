@@ -19,7 +19,7 @@ const resetAtMidnight = (process) => __awaiter(void 0, void 0, void 0, function*
     var night = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
     var msToMidnight = night.getTime() - now.getTime();
     yield process();
-    (0, exports.timeout)(10000).then(() => __awaiter(void 0, void 0, void 0, function* () {
+    (0, exports.timeout)(10000000).then(() => __awaiter(void 0, void 0, void 0, function* () {
         (0, exports.resetAtMidnight)(process);
     }));
 });
