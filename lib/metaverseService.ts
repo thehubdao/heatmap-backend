@@ -21,7 +21,6 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
     let response: any
     let tokenIds
     try {
-        console.time('Decentraland request')
         response = await axios.get(
             `${metaverseUrl(metaverse)}/${
                 metaverse === 'axie-infinity' ? 'requestMap' : 'map'
@@ -35,7 +34,6 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
                 },
             }
         )
-        console.timeEnd('Decentraland request')
 
         response = response.data as any
         tokenIds = Object.keys(response)
@@ -97,19 +95,16 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
             } catch (error) {
                 ores = undefined
                 cnt = cnt + 1
-                console.log('Error trying again...', error)
+                console.log('Error trying again...')
             }
         } while (ores == undefined && cnt < 10)
-
     }
-    console.time('Cache push')
     _cache.mset(
         (Object.keys(response) as any).map((key: any) => {
             return { key: metaverse + key, val: response[key] }
         })
     )
 
-    console.timeEnd('Cache push')
     if (metaverses[metaverse])
         metaverses[metaverse] = metaverses[metaverse].concat(
             Object.keys(response).map((key) => metaverse + key)
@@ -122,7 +117,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
     return {}
 }
 
-async function* iterateAllAsync(fn: Function, i: number) {
+async function* iterateAllAsync(fn: Function, i: number = 0) {
     while (true) {
         let res = await fn(i)
         if (!res) return
@@ -147,7 +142,7 @@ export const requestMetaverseLands = (metaverse: Metaverse) => {
     return arrayFromAsync(
         iterateAllAsync(
             (i: number) => requestMetaverseMap(i, metaverse),
-            chunkSize
+            0
         )
     )
 }
@@ -155,12 +150,13 @@ export const requestMetaverseLands = (metaverse: Metaverse) => {
 export const getMetaverses = () => metaverses
 
 export const updateMetaverses = async () => {
-     for (let metaverse of Object.keys(metaverseObject)) {
+    for (let metaverse of Object.keys(metaverseObject)) {
         await requestMetaverseLands(metaverse as Metaverse)
-    } 
+    }
 }
 
 export const getMetaverse = (metaverse: Metaverse) => {
-    return metaverses[metaverse]}
+    return metaverses[metaverse]
+}
 
 export const cache = _cache

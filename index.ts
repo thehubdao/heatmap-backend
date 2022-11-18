@@ -18,7 +18,6 @@ const io = new Server(server, {
 })
 
 io.on('connection', async (socket: Socket) => {
-    console.log('Connection')
     defineHandlers(socket, socketMessagesController(socket))
 })
 
