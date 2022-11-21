@@ -48,14 +48,12 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
     let response;
     let tokenIds;
     try {
-        console.time('Decentraland request');
         response = yield axios_1.default.get(`${(0, metaverseUtils_1.metaverseUrl)(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}&reduced=true`, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
             },
         });
-        console.timeEnd('Decentraland request');
         response = response.data;
         tokenIds = Object.keys(response);
         if (tokenIds.length < 1)
@@ -103,15 +101,13 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
             catch (error) {
                 ores = undefined;
                 cnt = cnt + 1;
-                console.log('Error trying again...', error);
+                console.log('Error trying again...');
             }
         } while (ores == undefined && cnt < 10);
     }
-    console.time('Cache push');
     _cache.mset(Object.keys(response).map((key) => {
         return { key: metaverse + key, val: response[key] };
     }));
-    console.timeEnd('Cache push');
     if (metaverses[metaverse])
         metaverses[metaverse] = metaverses[metaverse].concat(Object.keys(response).map((key) => metaverse + key));
     else
@@ -119,7 +115,7 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
     console.log(_cache.getStats());
     return {};
 });
-function iterateAllAsync(fn, i) {
+function iterateAllAsync(fn, i = 0) {
     return __asyncGenerator(this, arguments, function* iterateAllAsync_1() {
         while (true) {
             let res = yield __await(fn(i));
@@ -153,7 +149,7 @@ const arrayFromAsync = (asyncIterable) => { var asyncIterable_1, asyncIterable_1
 const requestMetaverseLands = (metaverse) => {
     chunkSize = metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands;
     metaverses[metaverse] = undefined;
-    return arrayFromAsync(iterateAllAsync((i) => requestMetaverseMap(i, metaverse), chunkSize));
+    return arrayFromAsync(iterateAllAsync((i) => requestMetaverseMap(i, metaverse), 0));
 };
 exports.requestMetaverseLands = requestMetaverseLands;
 const getMetaverses = () => metaverses;

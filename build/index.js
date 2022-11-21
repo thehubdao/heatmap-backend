@@ -30,7 +30,6 @@ const io = new Server(server, {
     },
 });
 io.on('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('Connection');
     (0, socketUtils_1.defineHandlers)(socket, (0, socketMessagesController_1.socketMessagesController)(socket));
 }));
 server.listen(port, () => {

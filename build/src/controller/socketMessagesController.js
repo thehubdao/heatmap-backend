@@ -14,7 +14,6 @@ const socketService_1 = require("../../lib/socketService");
 const socketMessagesController = (socket) => {
     return {
         render: (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
-            console.log(metaverse);
             yield (0, socketService_1.renderMetaverse)(socket, metaverse);
         }),
     };
