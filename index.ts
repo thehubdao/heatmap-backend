@@ -4,6 +4,7 @@ import { socketMessagesController } from './src/controller/socketMessagesControl
 import './src/process/metaverseProcess'
 import cors from 'cors'
 import { getMetaverse } from './lib/metaverseService'
+import { getLimitsController } from './src/controller/limitsController'
 const app = require('express')()
 app.use(cors())
 const server = require('http').createServer(app)
@@ -29,3 +30,5 @@ app.get('/metaverse', (req: any, res: any) => {
     //console.log("Metaverse",req,getMetaverse(req.metaverse))
     return res.send(getMetaverse(req.query.metaverse))
 })
+
+app.get('/limits', getLimitsController)
