@@ -73,8 +73,7 @@ export const getPercentage = (
 }
 
 export const getGeneralData = (
-    valuationAtlas: Record<string, any>,
-    element: MapFilter
+    valuationAtlas: Record<string, any>
 ) => {
     const getLandDependingOnGivenNumberOfDays = (
         valuation: any,
@@ -98,7 +97,7 @@ export const getGeneralData = (
     const MAX_DIFF = 400
 
     // GENERATE MAX
-    const elementOptions = {
+    const elementOptions: any = {
         transfers: {
             predictions: typedKeys(valuationAtlas).map(
                 (valuation) => valuationAtlas[valuation].history?.length
@@ -127,6 +126,12 @@ export const getGeneralData = (
             ),
         },
         basic: { predictions: [] },
+        eth_predicted_price: {predictions:typedKeys(valuationAtlas).map( 
+            (valuation) =>
+                valuationAtlas[valuation][ 
+                    "eth_predicted_price" as keyof ValueOf<typeof valuationAtlas> & MapFilter
+                ]
+        )},
         floor_adjusted_predicted_price: {
             predictions: typedKeys(valuationAtlas).map(
                 (valuation) =>
@@ -144,35 +149,24 @@ export const getGeneralData = (
             }),
         },
     }
-    let predictions: (number | undefined)[]
 
-    // I would prefer to use typedKeys(elementOptions) here but typescript complains so using Object.keys instead
-    if (Object.keys(elementOptions).includes(element)) {
-        predictions =
-            elementOptions[element as keyof typeof elementOptions].predictions
-    } else {
-        predictions = typedKeys(valuationAtlas).map(
-            (valuation) =>
-                valuationAtlas[valuation][
-                    element as keyof ValueOf<typeof valuationAtlas> & MapFilter
-                ]
-        )
-    }
-    let max = NaN,
-        limits: any = undefined
-
-    max = getMax(predictions)
-    limits = getLimits(predictions)
-
-    return { max, limits }
+    Object.keys(elementOptions).forEach((key) => {
+        let predictions =
+            elementOptions[key as keyof typeof elementOptions].predictions
+        elementOptions[key] = {
+            max: getMax(predictions),
+            limits: getLimits(predictions),
+        }
+    })
+    return elementOptions
 }
 
-const getMetaverseCalcs = (metaverse: Metaverse, filter: any) => {
+const getMetaverseCalcs = (metaverse: Metaverse) => {
     const metaverseKeys = Object.values(getMetaverse(metaverse))
     const lands = cache.mget(metaverseKeys)
-    return getGeneralData(lands, filter)
+    return getGeneralData(lands)
 }
 
 export const getLimitsController = async (req: any, res: any) => {
-    return res.send(getMetaverseCalcs(req.query.metaverse, req.query.filter))
+    return res.send(getMetaverseCalcs(req.query.metaverse))
 }
