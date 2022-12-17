@@ -126,21 +126,28 @@ function iterateAllAsync(fn, i = 0) {
         }
     });
 }
-const arrayFromAsync = (asyncIterable) => { var asyncIterable_1, asyncIterable_1_1; return __awaiter(void 0, void 0, void 0, function* () {
-    var e_1, _a;
+const arrayFromAsync = (asyncIterable) => { var _a, asyncIterable_1, asyncIterable_1_1; return __awaiter(void 0, void 0, void 0, function* () {
+    var _b, e_1, _c, _d;
     let results = {};
     try {
-        for (asyncIterable_1 = __asyncValues(asyncIterable); asyncIterable_1_1 = yield asyncIterable_1.next(), !asyncIterable_1_1.done;) {
-            let res = asyncIterable_1_1.value;
-            for (const [index, value] of Object.entries(res)) {
-                results[index] = value;
+        for (_a = true, asyncIterable_1 = __asyncValues(asyncIterable); asyncIterable_1_1 = yield asyncIterable_1.next(), _b = asyncIterable_1_1.done, !_b;) {
+            _d = asyncIterable_1_1.value;
+            _a = false;
+            try {
+                let res = _d;
+                for (const [index, value] of Object.entries(res)) {
+                    results[index] = value;
+                }
+            }
+            finally {
+                _a = true;
             }
         }
     }
     catch (e_1_1) { e_1 = { error: e_1_1 }; }
     finally {
         try {
-            if (asyncIterable_1_1 && !asyncIterable_1_1.done && (_a = asyncIterable_1.return)) yield _a.call(asyncIterable_1);
+            if (!_a && !_b && (_c = asyncIterable_1.return)) yield _c.call(asyncIterable_1);
         }
         finally { if (e_1) throw e_1.error; }
     }

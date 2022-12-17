@@ -5,8 +5,20 @@ import './src/process/metaverseProcess'
 import cors from 'cors'
 import { getMetaverse } from './lib/metaverseService'
 const app = require('express')()
+const fs = require('fs');
 app.use(cors())
-const server = require('http').createServer(app)
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/heatmap.itrmachines.com/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/heatmap.itrmachines.com/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/heatmap.itrmachines.com/chain.pem', 'utf8');
+
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
+
+
+const server = require('https').createServer(credentials,app)
 const Server = require('socket.io').Server
 const port = process.env.PORT || 8080
 const io = new Server(server, {
