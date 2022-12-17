@@ -17,6 +17,7 @@ const socketMessagesController_1 = require("./src/controller/socketMessagesContr
 require("./src/process/metaverseProcess");
 const cors_1 = __importDefault(require("cors"));
 const metaverseService_1 = require("./lib/metaverseService");
+const limitsController_1 = require("./src/controller/limitsController");
 const app = require('express')();
 app.use((0, cors_1.default)());
 const server = require('http').createServer(app);
@@ -39,3 +40,4 @@ app.get('/metaverse', (req, res) => {
     //console.log("Metaverse",req,getMetaverse(req.metaverse))
     return res.send((0, metaverseService_1.getMetaverse)(req.query.metaverse));
 });
+app.get('/limits', limitsController_1.getLimitsController);
