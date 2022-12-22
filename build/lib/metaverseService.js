@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cache = exports.getMetaverse = exports.updateMetaverses = exports.getMetaverses = exports.requestMetaverseLands = void 0;
+exports.cache = exports.getMetaverse = exports.updateMetaverses = exports.getListings = exports.getMetaverses = exports.requestMetaverseLands = void 0;
 const axios_1 = __importDefault(require("axios"));
 const NodeCache = require('node-cache');
 const _cache = new NodeCache();
@@ -61,49 +61,7 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
         console.log('Response', Object.keys(response).length, new Date(), i, metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands);
     }
     catch (_a) {
-        console.log(`${(0, metaverseUtils_1.metaverseUrl)(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}&reduced=true`, 'Empty array');
         response = {};
-    }
-    let ores, cnt = 0, metaverseAddress = (0, metaverseUtils_1.getMetaverseAddress)(metaverse);
-    if (metaverseAddress !== 'None') {
-        do {
-            try {
-                ores = yield (0, axios_1.default)({
-                    method: 'post',
-                    url: process.env.OPENSEA_SERVICE_URL + '/service/getTokens',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    data: JSON.stringify({
-                        collection: metaverseAddress,
-                        tokenIds,
-                    }),
-                });
-                ores = yield ores.data;
-                for (let value of ores.results) {
-                    let pred_price = response[value.token_id].predicted_price;
-                    if (value.current_price) {
-                        response[value.token_id].current_price_eth =
-                            value.current_price
-                                ? value.current_price.eth_price
-                                : undefined;
-                        response[value.token_id].percent = value.current_price
-                            ? 100 *
-                                (value.current_price.eth_price / pred_price - 1)
-                            : undefined;
-                    }
-                    response[value.token_id].best_offered_price_eth =
-                        value.best_offered_price
-                            ? value.best_offered_price.eth_price
-                            : undefined;
-                }
-            }
-            catch (error) {
-                ores = undefined;
-                cnt = cnt + 1;
-                console.log('Error trying again...');
-            }
-        } while (ores == undefined && cnt < 10);
     }
     _cache.mset(Object.keys(response).map((key) => {
         return { key: metaverse + key, val: response[key] };
@@ -161,9 +119,49 @@ const requestMetaverseLands = (metaverse) => {
 exports.requestMetaverseLands = requestMetaverseLands;
 const getMetaverses = () => metaverses;
 exports.getMetaverses = getMetaverses;
+const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
+    let listings = [];
+    for (let i = 0;; i += metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands) {
+        let listingsChunk = yield (yield (0, axios_1.default)({
+            method: 'get',
+            url: process.env.OPENSEA_SERVICE_URL +
+                `/opensea/collections/${metaverse}/listings?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}`,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })).data.result;
+        if (listingsChunk.length == 0)
+            return listings;
+        listings = listings.concat(listingsChunk);
+    }
+});
+exports.getListings = getListings;
 const updateMetaverses = () => __awaiter(void 0, void 0, void 0, function* () {
     for (let metaverse of Object.keys(metaverse_1.metaverseObject)) {
-        yield (0, exports.requestMetaverseLands)(metaverse);
+        try {
+            yield (0, exports.requestMetaverseLands)(metaverse);
+            let listings = yield (0, exports.getListings)(metaverse);
+            for (let value of listings) {
+                let key = metaverse + value.tokenId;
+                let land = _cache.get(key);
+                let pred_price = land === null || land === void 0 ? void 0 : land.eth_predicted_price;
+                if (value.currentPrice) {
+                    land.current_price_eth = value.currentPrice
+                        ? value.currentPrice.eth_price
+                        : undefined;
+                    land.percent = value.currentPrice
+                        ? 100 * (value.currentPrice.eth_price / pred_price - 1)
+                        : undefined;
+                }
+                land.best_offered_price_eth = value.bestOfferedPrice
+                    ? value.bestOfferedPrice.eth_price
+                    : undefined;
+                _cache.set(key, land);
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
     }
 });
 exports.updateMetaverses = updateMetaverses;
