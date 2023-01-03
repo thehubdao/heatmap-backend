@@ -8,4 +8,5 @@ export const renderMetaverse = async (socket: Socket, metaverse: Metaverse) => {
     for (const land of Object.values(lands)) {
         socket.emit('render', land)
     }
+    socket.emit('render-finish')
 }

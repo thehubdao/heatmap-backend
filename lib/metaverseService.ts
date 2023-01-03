@@ -19,7 +19,6 @@ let metaverses: Record<Metaverse, any> = {
 
 const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
     let response: any
-    let tokenIds
     try {
         response = await axios.get(
             `${metaverseUrl(metaverse)}/${
@@ -36,8 +35,10 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         )
 
         response = response.data as any
-        tokenIds = Object.keys(response)
-        if (tokenIds.length < 1) return
+        if (Object.keys(response).length < 1) return
+        ;(Object.keys(response) as any).forEach((key: any) => {
+            response[key].tokenId = key
+        })
         console.log(
             'Response',
             Object.keys(response).length,
