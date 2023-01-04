@@ -46,7 +46,6 @@ let metaverses = {
 };
 const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     let response;
-    let tokenIds;
     try {
         response = yield axios_1.default.get(`${(0, metaverseUtils_1.metaverseUrl)(metaverse)}/${metaverse === 'axie-infinity' ? 'requestMap' : 'map'}?from=${i}&size=${metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands}&reduced=true`, {
             method: 'GET',
@@ -55,9 +54,11 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
             },
         });
         response = response.data;
-        tokenIds = Object.keys(response);
-        if (tokenIds.length < 1)
+        if (Object.keys(response).length < 1)
             return;
+        Object.keys(response).forEach((key) => {
+            response[key].tokenId = key;
+        });
         console.log('Response', Object.keys(response).length, new Date(), i, metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands);
     }
     catch (_a) {
