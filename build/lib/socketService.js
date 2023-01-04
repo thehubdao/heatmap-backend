@@ -17,5 +17,6 @@ const renderMetaverse = (socket, metaverse) => __awaiter(void 0, void 0, void 0,
     for (const land of Object.values(lands)) {
         socket.emit('render', land);
     }
+    socket.emit('render-finish');
 });
 exports.renderMetaverse = renderMetaverse;
