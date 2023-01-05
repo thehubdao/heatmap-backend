@@ -110,14 +110,8 @@ export const getGeneralData = (
                     'undefined'
                 )
                     return
-                const landPercentage = getPercentage(
-                    valuationAtlas[valuation].current_price_eth,
-                    valuationAtlas[valuation].eth_predicted_price,
-                    undefined
-                )
-                if (landPercentage < MAX_DIFF) {
-                    return landPercentage
-                }
+                const diff = (valuationAtlas[valuation].current_price_eth / valuationAtlas[valuation].eth_predicted_price) -1
+                return diff
             }),
         },
         listed_lands: {
@@ -141,10 +135,12 @@ export const getGeneralData = (
         last_month_sells: {
             predictions: typedKeys(valuationAtlas).map((valuation) => {
                 if (getLandDependingOnGivenNumberOfDays(valuation, 30) > 0)
-                    return CalculateMaxPriceOnHistoryDependGivenDays(
+                    {
+                        return CalculateMaxPriceOnHistoryDependGivenDays(
                         valuationAtlas[valuation],
                         30
-                    )
+                    )}
+                
                 return 0
             }),
         },
