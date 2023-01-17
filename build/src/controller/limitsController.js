@@ -97,10 +97,8 @@ const getGeneralData = (valuationAtlas) => {
                 if (typeof valuationAtlas[valuation].current_price_eth ===
                     'undefined')
                     return;
-                const landPercentage = (0, exports.getPercentage)(valuationAtlas[valuation].current_price_eth, valuationAtlas[valuation].eth_predicted_price, undefined);
-                if (landPercentage < MAX_DIFF) {
-                    return landPercentage;
-                }
+                const diff = (valuationAtlas[valuation].current_price_eth / valuationAtlas[valuation].eth_predicted_price) - 1;
+                return diff;
             }),
         },
         listed_lands: {
@@ -113,8 +111,9 @@ const getGeneralData = (valuationAtlas) => {
         },
         last_month_sells: {
             predictions: (0, typedKeys_1.typedKeys)(valuationAtlas).map((valuation) => {
-                if (getLandDependingOnGivenNumberOfDays(valuation, 30) > 0)
+                if (getLandDependingOnGivenNumberOfDays(valuation, 30) > 0) {
                     return CalculateMaxPriceOnHistoryDependGivenDays(valuationAtlas[valuation], 30);
+                }
                 return 0;
             }),
         },
