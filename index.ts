@@ -31,6 +31,9 @@ const io = new Server(server, {
 })
 
 io.on('connection', async (socket: Socket) => {
+    console.log("CONNECTION",Date.now())
+    console.log("ip: "+socket.request.connection.remoteAddress);
+    console.log("user-agent: "+socket.request.headers['user-agent']);
     defineHandlers(socket, socketMessagesController(socket))
 })
 
