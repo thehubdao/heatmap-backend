@@ -33,6 +33,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cache = exports.metaverseKeyTotalAmount = exports.getLandKey = exports.getMetaverse = exports.updateMetaverses = exports.getListings = exports.getMetaverses = exports.requestMetaverseLands = void 0;
 const axios_1 = __importDefault(require("axios"));
+const limitsController_1 = require("../src/controller/limitsController");
 const NodeCache = require('node-cache');
 const _cache = new NodeCache();
 const metaverse_1 = require("../types/metaverse");
@@ -152,6 +153,8 @@ const updateMetaverses = () => __awaiter(void 0, void 0, void 0, function* () {
                     : undefined;
                 _cache.set(key, land);
             }
+            const metaverseGeneralData = (0, limitsController_1.getMetaverseCalcs)(metaverse);
+            _cache.set(`${metaverse}-generalData`, metaverseGeneralData);
         }
         catch (err) {
             console.log(err);

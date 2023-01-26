@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLimitsController = exports.getGeneralData = exports.getPercentage = exports.getLimits = exports.getMax = void 0;
+exports.getLimitsController = exports.getMetaverseCalcs = exports.getGeneralData = exports.getPercentage = exports.getLimits = exports.getMax = void 0;
 const typedKeys_1 = require("../utilities/typedKeys");
 const metaverseService_1 = require("../../lib/metaverseService");
 const getMax = (array) => {
@@ -133,7 +133,9 @@ const getMetaverseCalcs = (metaverse) => {
     const lands = metaverseService_1.cache.mget(metaverseKeys);
     return (0, exports.getGeneralData)(lands);
 };
+exports.getMetaverseCalcs = getMetaverseCalcs;
 const getLimitsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    return res.send(getMetaverseCalcs(req.query.metaverse));
+    const { metaverse } = req.query;
+    return res.send(metaverseService_1.cache.get(`${metaverse}-generalData`));
 });
 exports.getLimitsController = getLimitsController;

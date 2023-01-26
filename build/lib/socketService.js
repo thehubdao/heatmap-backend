@@ -25,9 +25,9 @@ const renderContinue = (socket, metaverse, keyIndex) => __awaiter(void 0, void 0
 });
 exports.renderContinue = renderContinue;
 const renderLands = (socket, metaverse, landKeys) => __awaiter(void 0, void 0, void 0, function* () {
-    for (const key of landKeys) {
-        const land = yield metaverseService_1.cache.get(key);
-        socket.emit(socket_1.socketSenderMessages.newLandData, land /* keyIndex */);
+    for (const keyIndex in landKeys) {
+        const land = yield metaverseService_1.cache.get(landKeys[keyIndex]);
+        socket.emit(socket_1.socketSenderMessages.newLandData, land, keyIndex);
     }
     socket.emit(socket_1.socketSenderMessages.renderFinish);
 });

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getMetaverseCalcs } from '../src/controller/limitsController'
 const NodeCache = require('node-cache')
 const _cache = new NodeCache()
 import { Metaverse, metaverseObject } from '../types/metaverse'
@@ -92,6 +93,7 @@ export const requestMetaverseLands = (metaverse: Metaverse) => {
     return arrayFromAsync(
         iterateAllAsync((i: number) => requestMetaverseMap(i, metaverse), 0)
     )
+
 }
 
 export const getMetaverses = () => metaverses
@@ -137,6 +139,8 @@ export const updateMetaverses = async () => {
                     : undefined
                 _cache.set(key, land)
             }
+            const metaverseGeneralData = getMetaverseCalcs(metaverse as Metaverse)
+            _cache.set(`${metaverse}-generalData`,metaverseGeneralData)
         } catch (err) {
             console.log(err)
         }
