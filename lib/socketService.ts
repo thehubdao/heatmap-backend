@@ -27,9 +27,9 @@ const renderLands = async (
     metaverse: Metaverse,
     landKeys: [string]
 ) => {
-    for (const key of landKeys) {
-        const land = await cache.get(key)
-        socket.emit(socketSenderMessages.newLandData, land /* keyIndex */)
+    for (const keyIndex in landKeys) {
+        const land = await cache.get(landKeys[keyIndex])
+        socket.emit(socketSenderMessages.newLandData, land, keyIndex)
     }
     socket.emit(socketSenderMessages.renderFinish)
 }

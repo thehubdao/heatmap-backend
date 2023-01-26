@@ -157,12 +157,13 @@ export const getGeneralData = (
     return elementOptions
 }
 
-const getMetaverseCalcs = (metaverse: Metaverse) => {
+export const getMetaverseCalcs = (metaverse: Metaverse) => {
     const metaverseKeys = Object.values(getMetaverse(metaverse))
     const lands = cache.mget(metaverseKeys)
     return getGeneralData(lands)
 }
 
 export const getLimitsController = async (req: any, res: any) => {
-    return res.send(getMetaverseCalcs(req.query.metaverse))
+    const {metaverse} = req.query
+    return res.send(cache.get(`${metaverse}-generalData`))
 }
