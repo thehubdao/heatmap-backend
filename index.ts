@@ -5,28 +5,25 @@ import './src/process/metaverseProcess'
 import cors from 'cors'
 import { getMetaverse } from './lib/metaverseService'
 import { getLimitsController } from './src/controller/limitsController'
+import { clientConnect } from './lib/socketService'
+import { socketReceiverMessages } from './types/socket'
 const app = require('express')()
 app.use(cors())
 const server = require('http').createServer(app)
 const Server = require('socket.io').Server
 const port = process.env.PORT || 8080
 const io = new Server(server, {
-    path: '/heatmap-backend',
     cors: {
         origin: '*',
         methods: ['GET', 'POST'],
     },
 })
 
-io.on('connection', async (socket: Socket) => {
-    console.log("CONNECTION",Date.now())
-    console.log("ip: "+socket.request.connection.remoteAddress);
-    console.log("user-agent: "+socket.request.headers['user-agent']);
-    socket.on("disconnect", (reason) => {
-        console.log(reason)
-        console.log("ip: "+socket.request.connection.remoteAddress);
-        console.log("user-agent: "+socket.request.headers['user-agent']);
-      });
+io.on(socketReceiverMessages.socketConnect, async (socket: Socket) => {
+    clientConnect(socket)
+    socket.on("connect_error", (err) => {
+        console.log(`connect_error due to ${err.message}`);
+      })
     defineHandlers(socket, socketMessagesController(socket))
 })
 
