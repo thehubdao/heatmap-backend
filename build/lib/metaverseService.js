@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cache = exports.getMetaverse = exports.updateMetaverses = exports.getListings = exports.getMetaverses = exports.requestMetaverseLands = void 0;
+exports.cache = exports.metaverseKeyTotalAmount = exports.getLandKey = exports.getMetaverse = exports.updateMetaverses = exports.getListings = exports.getMetaverses = exports.requestMetaverseLands = void 0;
 const axios_1 = __importDefault(require("axios"));
 const NodeCache = require('node-cache');
 const _cache = new NodeCache();
@@ -71,7 +71,7 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
         metaverses[metaverse] = metaverses[metaverse].concat(Object.keys(response).map((key) => metaverse + key));
     else
         metaverses[metaverse] = Object.keys(response).map((key) => metaverse + key);
-    console.log(_cache.getStats());
+    console.log(/* metaverses[metaverse], */ _cache.getStats());
     return {};
 });
 function iterateAllAsync(fn, i = 0) {
@@ -163,4 +163,10 @@ const getMetaverse = (metaverse) => {
     return metaverses[metaverse];
 };
 exports.getMetaverse = getMetaverse;
+const getLandKey = (metaverse, keyIndex) => {
+    return metaverses[metaverse][keyIndex];
+};
+exports.getLandKey = getLandKey;
+const metaverseKeyTotalAmount = (metaverse) => metaverses[metaverse].length;
+exports.metaverseKeyTotalAmount = metaverseKeyTotalAmount;
 exports.cache = _cache;

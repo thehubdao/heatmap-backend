@@ -11,11 +11,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.socketMessagesController = void 0;
 const socketService_1 = require("../../lib/socketService");
+const socket_1 = require("../../types/socket");
 const socketMessagesController = (socket) => {
     return {
-        render: (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, socketService_1.renderMetaverse)(socket, metaverse);
+        [socket_1.socketReceiverMessages.socketDisconnect]: (disconnectReason) => {
+            (0, socketService_1.clientDisconnect)(disconnectReason, socket);
+        },
+        [socket_1.socketReceiverMessages.renderStart]: (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
+            yield (0, socketService_1.renderStart)(socket, metaverse);
         }),
+        [socket_1.socketReceiverMessages.getLand]: (metaverse, index) => __awaiter(void 0, void 0, void 0, function* () {
+            yield (0, socketService_1.giveLand)(socket, metaverse, index);
+        }),
+        [socket_1.socketReceiverMessages.renderContinue]: () => {
+        }
     };
 };
 exports.socketMessagesController = socketMessagesController;
