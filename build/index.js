@@ -18,6 +18,8 @@ require("./src/process/metaverseProcess");
 const cors_1 = __importDefault(require("cors"));
 const metaverseService_1 = require("./lib/metaverseService");
 const limitsController_1 = require("./src/controller/limitsController");
+const socketService_1 = require("./lib/socketService");
+const socket_1 = require("./types/socket");
 const app = require('express')();
 const fs = require('fs');
 app.use((0, cors_1.default)());
@@ -33,20 +35,15 @@ const server = require('https').createServer(credentials, app);
 const Server = require('socket.io').Server;
 const port = process.env.PORT || 8080;
 const io = new Server(server, {
-    path: '/heatmap-backend',
     cors: {
         origin: '*',
         methods: ['GET', 'POST'],
     },
 });
-io.on('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("CONNECTION", Date.now());
-    console.log("ip: " + socket.request.connection.remoteAddress);
-    console.log("user-agent: " + socket.request.headers['user-agent']);
-    socket.on("disconnect", (reason) => {
-        console.log(reason);
-        console.log("ip: " + socket.request.connection.remoteAddress);
-        console.log("user-agent: " + socket.request.headers['user-agent']);
+io.on(socket_1.socketReceiverMessages.socketConnect, (socket) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, socketService_1.clientConnect)(socket);
+    socket.on("connect_error", (err) => {
+        console.log(`connect_error due to ${err.message}`);
     });
     (0, socketUtils_1.defineHandlers)(socket, (0, socketMessagesController_1.socketMessagesController)(socket));
 }));

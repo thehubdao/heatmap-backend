@@ -1,12 +1,23 @@
 import { Socket } from 'socket.io'
-import { renderMetaverse } from '../../lib/socketService'
+import { clientDisconnect, giveLand, renderStart } from '../../lib/socketService'
 import { Metaverse } from '../../types/metaverse'
-import { Controller } from '../../types/socket'
+import { Controller, socketReceiverMessages, socketSenderMessages } from '../../types/socket'
 
 export const socketMessagesController = (socket: Socket) => {
     return {
-        render: async (metaverse: Metaverse) => {
-           await renderMetaverse(socket, metaverse)
+        [socketReceiverMessages.socketDisconnect]: (
+            disconnectReason: string
+        ) => {
+            clientDisconnect(disconnectReason, socket)
         },
+        [socketReceiverMessages.renderStart]: async (metaverse: Metaverse) => {
+            await renderStart(socket, metaverse)
+        },
+        [socketReceiverMessages.getLand]: async (metaverse:Metaverse, index:number)=>{
+            await giveLand(socket,metaverse,index)
+        },
+        [socketReceiverMessages.renderContinue]:()=>{
+            
+        }
     } as Controller
 }

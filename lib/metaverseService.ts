@@ -63,7 +63,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         metaverses[metaverse] = Object.keys(response).map(
             (key) => metaverse + key
         )
-    console.log(_cache.getStats())
+    console.log(/* metaverses[metaverse], */_cache.getStats())
     return {}
 }
 
@@ -146,5 +146,11 @@ export const updateMetaverses = async () => {
 export const getMetaverse = (metaverse: Metaverse) => {
     return metaverses[metaverse]
 }
+
+export const getLandKey=(metaverse: Metaverse, keyIndex:number)=>{
+return metaverses[metaverse][keyIndex]
+}
+
+export const metaverseKeyTotalAmount = (metaverse: Metaverse)=>metaverses[metaverse].length
 
 export const cache = _cache
