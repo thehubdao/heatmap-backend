@@ -1,10 +1,15 @@
 import { Socket } from 'socket.io'
 import { Metaverse } from '../types/metaverse'
-import { getMetaverse, cache, getLandKey, metaverseKeyTotalAmount } from './metaverseService'
+import {
+    getMetaverse,
+    cache,
+    getLandKey,
+    metaverseKeyTotalAmount,
+} from './metaverseService'
 import { socketReceiverMessages, socketSenderMessages } from '../types/socket'
 
 export const renderStart = async (socket: Socket, metaverse: Metaverse) => {
-    console.log('render-start')
+    console.log('render-start', metaverse)
     const metaverseKeys = getMetaverse(metaverse) as [string]
     await renderLands(socket, metaverse, metaverseKeys)
 }
@@ -39,7 +44,7 @@ export const giveLand = async (
     metaverse: Metaverse,
     index: number
 ) => {
-    const land = await cache.get(getLandKey(metaverse,index))
+    const land = await cache.get(getLandKey(metaverse, index))
     let prevIndex: number | null = index - 1
     let nextIndex: number | null = index + 1
     if (prevIndex < 0) prevIndex = null
@@ -72,15 +77,16 @@ export const pingPong = (socket: any) => {
     const setPongInterval = (socket: any) => {
         clearInterval(socket.pongInterval)
         socket.pongInterval = setInterval(() => {
+            console.log('Disconnect')
             socket.disconnect(true)
             clearInterval(socket.pingInterval)
             clearInterval(socket.pongInterval)
         }, pongInterval)
     }
-    setPongInterval(socket)
     socket.on(socketReceiverMessages.pong, () => {
         setPongInterval(socket)
     })
+    setPongInterval(socket)
 }
 
 export const clientConnect = (socket: Socket) => {
