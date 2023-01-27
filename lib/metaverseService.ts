@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { getMetaverseCalcs } from '../src/controller/limitsController'
 const NodeCache = require('node-cache')
-const _cache = new NodeCache()
+const cache = new NodeCache()
 import { Metaverse, metaverseObject } from '../types/metaverse'
 import {
     getMetaverseAddress,
@@ -10,6 +10,8 @@ import {
 } from './utils/metaverseUtils'
 
 let chunkSize = 0
+
+let metaversesGeneralData:any = {}
 
 let metaverses: Record<Metaverse, any> = {
     decentraland: undefined,
@@ -50,7 +52,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
     } catch {
         response = {}
     }
-    _cache.mset(
+    cache.mset(
         (Object.keys(response) as any).map((key: any) => {
             return { key: metaverse + key, val: response[key] }
         })
@@ -64,7 +66,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         metaverses[metaverse] = Object.keys(response).map(
             (key) => metaverse + key
         )
-    console.log(/* metaverses[metaverse], */_cache.getStats())
+    console.log(/* metaverses[metaverse], */cache.getStats())
     return {}
 }
 
@@ -124,7 +126,7 @@ export const updateMetaverses = async () => {
             let listings = await getListings(metaverse as Metaverse)
             for (let value of listings) {
                 let key = metaverse + value.tokenId
-                let land = _cache.get(key)
+                let land = cache.get(key)
                 let pred_price = land?.eth_predicted_price
                 if (value.currentPrice) {
                     land.current_price_eth = value.currentPrice
@@ -137,10 +139,11 @@ export const updateMetaverses = async () => {
                 land.best_offered_price_eth = value.bestOfferedPrice
                     ? value.bestOfferedPrice.eth_price
                     : undefined
-                _cache.set(key, land)
+                cache.set(key, land)
             }
             const metaverseGeneralData = getMetaverseCalcs(metaverse as Metaverse)
-            _cache.set(`${metaverse}-generalData`,metaverseGeneralData)
+            console.log(`${metaverse}-generalData`,metaverseGeneralData)
+            metaversesGeneralData[`${metaverse}-generalData`] = metaverseGeneralData
         } catch (err) {
             console.log(err)
         }
@@ -157,4 +160,4 @@ return metaverses[metaverse][keyIndex]
 
 export const metaverseKeyTotalAmount = (metaverse: Metaverse)=>metaverses[metaverse].length
 
-export const cache = _cache
+export  {metaversesGeneralData, cache}
