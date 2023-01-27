@@ -14,7 +14,7 @@ export const resetAtMidnight = async (process: Function) => {
     )
     var msToMidnight = night.getTime() - now.getTime()
     await process()
-    timeout(10000000).then(async () => {
+    timeout(120000).then(async () => {
         resetAtMidnight(process)
     })
 }
