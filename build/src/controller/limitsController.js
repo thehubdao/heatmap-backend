@@ -136,6 +136,6 @@ const getMetaverseCalcs = (metaverse) => {
 exports.getMetaverseCalcs = getMetaverseCalcs;
 const getLimitsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { metaverse } = req.query;
-    return res.send(metaverseService_1.cache.get(`${metaverse}-generalData`));
+    return res.send(metaverseService_1.metaversesGeneralData[`${metaverse}-generalData`]);
 });
 exports.getLimitsController = getLimitsController;

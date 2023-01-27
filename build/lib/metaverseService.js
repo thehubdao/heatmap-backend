@@ -31,14 +31,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cache = exports.metaverseKeyTotalAmount = exports.getLandKey = exports.getMetaverse = exports.updateMetaverses = exports.getListings = exports.getMetaverses = exports.requestMetaverseLands = void 0;
+exports.cache = exports.metaversesGeneralData = exports.metaverseKeyTotalAmount = exports.getLandKey = exports.getMetaverse = exports.updateMetaverses = exports.getListings = exports.getMetaverses = exports.requestMetaverseLands = void 0;
 const axios_1 = __importDefault(require("axios"));
 const limitsController_1 = require("../src/controller/limitsController");
 const NodeCache = require('node-cache');
-const _cache = new NodeCache();
+const cache = new NodeCache();
+exports.cache = cache;
 const metaverse_1 = require("../types/metaverse");
 const metaverseUtils_1 = require("./utils/metaverseUtils");
 let chunkSize = 0;
+let metaversesGeneralData = {};
+exports.metaversesGeneralData = metaversesGeneralData;
 let metaverses = {
     decentraland: undefined,
     'somnium-space': undefined,
@@ -65,14 +68,14 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
     catch (_a) {
         response = {};
     }
-    _cache.mset(Object.keys(response).map((key) => {
+    cache.mset(Object.keys(response).map((key) => {
         return { key: metaverse + key, val: response[key] };
     }));
     if (metaverses[metaverse])
         metaverses[metaverse] = metaverses[metaverse].concat(Object.keys(response).map((key) => metaverse + key));
     else
         metaverses[metaverse] = Object.keys(response).map((key) => metaverse + key);
-    console.log(/* metaverses[metaverse], */ _cache.getStats());
+    console.log(/* metaverses[metaverse], */ cache.getStats());
     return {};
 });
 function iterateAllAsync(fn, i = 0) {
@@ -138,7 +141,7 @@ const updateMetaverses = () => __awaiter(void 0, void 0, void 0, function* () {
             let listings = yield (0, exports.getListings)(metaverse);
             for (let value of listings) {
                 let key = metaverse + value.tokenId;
-                let land = _cache.get(key);
+                let land = cache.get(key);
                 let pred_price = land === null || land === void 0 ? void 0 : land.eth_predicted_price;
                 if (value.currentPrice) {
                     land.current_price_eth = value.currentPrice
@@ -151,10 +154,11 @@ const updateMetaverses = () => __awaiter(void 0, void 0, void 0, function* () {
                 land.best_offered_price_eth = value.bestOfferedPrice
                     ? value.bestOfferedPrice.eth_price
                     : undefined;
-                _cache.set(key, land);
+                cache.set(key, land);
             }
             const metaverseGeneralData = (0, limitsController_1.getMetaverseCalcs)(metaverse);
-            _cache.set(`${metaverse}-generalData`, metaverseGeneralData);
+            console.log(`${metaverse}-generalData`, metaverseGeneralData);
+            metaversesGeneralData[`${metaverse}-generalData`] = metaverseGeneralData;
         }
         catch (err) {
             console.log(err);
@@ -172,4 +176,3 @@ const getLandKey = (metaverse, keyIndex) => {
 exports.getLandKey = getLandKey;
 const metaverseKeyTotalAmount = (metaverse) => metaverses[metaverse].length;
 exports.metaverseKeyTotalAmount = metaverseKeyTotalAmount;
-exports.cache = _cache;
