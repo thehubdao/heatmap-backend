@@ -13,7 +13,7 @@ exports.clientDisconnect = exports.clientConnect = exports.pingPong = exports.re
 const metaverseService_1 = require("./metaverseService");
 const socket_1 = require("../types/socket");
 const renderStart = (socket, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('render-start');
+    console.log('render-start', metaverse);
     const metaverseKeys = (0, metaverseService_1.getMetaverse)(metaverse);
     yield renderLands(socket, metaverse, metaverseKeys);
 });
@@ -59,15 +59,16 @@ const pingPong = (socket) => {
     const setPongInterval = (socket) => {
         clearInterval(socket.pongInterval);
         socket.pongInterval = setInterval(() => {
+            console.log('Disconnect');
             socket.disconnect(true);
             clearInterval(socket.pingInterval);
             clearInterval(socket.pongInterval);
         }, pongInterval);
     };
-    setPongInterval(socket);
     socket.on(socket_1.socketReceiverMessages.pong, () => {
         setPongInterval(socket);
     });
+    setPongInterval(socket);
 };
 exports.pingPong = pingPong;
 const clientConnect = (socket) => {

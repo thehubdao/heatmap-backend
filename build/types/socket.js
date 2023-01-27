@@ -17,4 +17,5 @@ var socketReceiverMessages;
     socketReceiverMessages["pong"] = "pong";
     socketReceiverMessages["getLand"] = "get-land";
     socketReceiverMessages["renderContinue"] = "render-continue";
+    socketReceiverMessages["renderStop"] = "render-stop";
 })(socketReceiverMessages = exports.socketReceiverMessages || (exports.socketReceiverMessages = {}));
