@@ -14,5 +14,6 @@ export enum socketReceiverMessages {
     pong = 'pong',
     getLand = 'get-land',
     renderContinue = 'render-continue',
+    renderStop = 'render-stop'
 }
 export type Controller = Record<string, (...args: any[]) => void>
