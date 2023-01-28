@@ -9,6 +9,7 @@ const setKey = (key, value) => {
 exports.setKey = setKey;
 const setBulkKeys = (keys) => {
     cache.mset(keys);
+    console.log(cache.getStats());
 };
 exports.setBulkKeys = setBulkKeys;
 const getKey = (key) => cache.get(key);

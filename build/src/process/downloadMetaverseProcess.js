@@ -31,15 +31,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateMetaverses = exports.getListings = exports.getMetaverses = exports.requestMetaverseLands = void 0;
 const axios_1 = __importDefault(require("axios"));
 const limitsController_1 = require("../controller/limitsController");
 const metaverse_1 = require("../../types/metaverse");
 const metaverseUtils_1 = require("../../lib/utils/metaverseUtils");
 const process_1 = require("../../types/process");
 let chunkSize = 0;
-let metaversesGeneralData = {};
-let metaverses = {
+const metaverses = {
     decentraland: [],
     'somnium-space': [],
     sandbox: [],
@@ -59,10 +57,10 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
         if (landChunkKeys.length < 1)
             return;
         const landsFormatted = landChunkKeys.map((key) => {
-            key += metaverse; //Each key has metaverse name concat
             const keyArray = metaverses[metaverse];
             keyArray.push(key);
             landChunk[key].tokenId = key;
+            key = metaverse + key; //Each key has metaverse name concat
             return { key, val: landChunk[key] };
         });
         sendParentMessage(process_1.ProcessMessages.newMetaverseChunk, landsFormatted);
@@ -106,12 +104,8 @@ const arrayFromAsync = (asyncIterable) => { var asyncIterable_1, asyncIterable_1
 }); };
 const requestMetaverseLands = (metaverse) => {
     chunkSize = metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands;
-    metaverses[metaverse] = undefined;
     return arrayFromAsync(iterateAllAsync((i) => requestMetaverseMap(i, metaverse), 0));
 };
-exports.requestMetaverseLands = requestMetaverseLands;
-const getMetaverses = () => metaverses;
-exports.getMetaverses = getMetaverses;
 const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     const landsChunkLimit = metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands;
     const listingUrl = process.env.OPENSEA_SERVICE_URL +
@@ -130,52 +124,41 @@ const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
         listings = listings.concat(listingsChunk);
     }
 });
-exports.getListings = getListings;
 const updateMetaverses = () => __awaiter(void 0, void 0, void 0, function* () {
     const metaverses = Object.keys(metaverse_1.metaverseObject);
     for (const metaverse of metaverses) {
         try {
-            yield (0, exports.requestMetaverseLands)(metaverse);
-            const listings = yield (0, exports.getListings)(metaverse);
-            for (let value of listings) {
-                let key = metaverse + value.tokenId;
-                sendParentMessage(process_1.ProcessMessages.getLand, key);
+            console.log(metaverse);
+            yield requestMetaverseLands(metaverse);
+            const listings = yield getListings(metaverse);
+            for (const listing of listings) {
+                let key = metaverse + listing.tokenId;
+                sendParentMessage(process_1.ProcessMessages.getCacheKey, key);
                 const getLandPromise = new Promise((resolve) => {
                     process.once('message', ({ message, data }) => {
-                        if (message == process_1.ProcessMessages.sendLand)
+                        console.log(message, data);
+                        if (message == process_1.ProcessMessages.sendCacheKey)
                             resolve(data);
                     });
                 });
                 const land = yield getLandPromise;
-                let pred_price = land === null || land === void 0 ? void 0 : land.eth_predicted_price;
-                if (value.currentPrice) {
-                    land.current_price_eth = value.currentPrice
-                        ? value.currentPrice.eth_price
-                        : undefined;
-                    land.percent = value.currentPrice
-                        ? 100 * (value.currentPrice.eth_price / pred_price - 1)
-                        : undefined;
-                }
-                land.best_offered_price_eth = value.bestOfferedPrice
-                    ? value.bestOfferedPrice.eth_price
-                    : undefined;
-                sendParentMessage(process_1.ProcessMessages.setLand, { key, land });
+                const { currentPrice } = listing;
+                if (currentPrice)
+                    land.current_price_eth = currentPrice.eth_price;
+                sendParentMessage(process_1.ProcessMessages.setCacheKey, { key, land });
             }
             const metaverseGeneralData = (0, limitsController_1.getMetaverseCalcs)(metaverse);
-            console.log(`${metaverse}-generalData`, metaverseGeneralData);
-            metaversesGeneralData[`${metaverse}-generalData`] =
-                metaverseGeneralData;
+            sendParentMessage(process_1.ProcessMessages.setCacheKey, { key: `${metaverse}-generalData`, metaverseGeneralData });
         }
         catch (err) {
             console.log(err);
         }
     }
 });
-exports.updateMetaverses = updateMetaverses;
 const processMessages = {
     [process_1.ProcessMessages.downloadStart]() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield (0, exports.updateMetaverses)();
+            yield updateMetaverses();
         });
     },
 };
@@ -186,6 +169,8 @@ process.on('message', ({ message }) => __awaiter(void 0, void 0, void 0, functio
     yield messageHandler();
 }));
 const sendParentMessage = (message, data) => {
-    const { send } = process;
-    send({ message, data });
+    const moldableProcess = process;
+    if (!moldableProcess)
+        return;
+    moldableProcess.send({ message, data });
 };
