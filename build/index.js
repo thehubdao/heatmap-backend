@@ -20,6 +20,10 @@ const metaverseService_1 = require("./lib/metaverseService");
 const limitsController_1 = require("./src/controller/limitsController");
 const socketService_1 = require("./lib/socketService");
 const socket_1 = require("./types/socket");
+require("./src/process/parentProcess");
+const child_process_1 = require("child_process");
+const cacheService_1 = require("./lib/cacheService");
+const process_1 = require("./types/process");
 const app = require('express')();
 const fs = require('fs');
 app.use((0, cors_1.default)());
@@ -55,3 +59,29 @@ app.get('/metaverse', (req, res) => {
     return res.send((0, metaverseService_1.getMetaverse)(req.query.metaverse));
 });
 app.get('/limits', limitsController_1.getLimitsController);
+const child = (0, child_process_1.fork)('./src/process/downloadMetaverseProcess.ts');
+const processMessages = {
+    [process_1.ProcessMessages.newMetaverseChunk](chunk) {
+        (0, cacheService_1.setBulkKeys)(chunk);
+    },
+    [process_1.ProcessMessages.getCacheKey](key) {
+        const cacheValue = (0, cacheService_1.getKey)(key);
+        sendChildMessage(process_1.ProcessMessages.sendCacheKey, cacheValue);
+    },
+    [process_1.ProcessMessages.setCacheKey]({ key, land }) {
+        (0, cacheService_1.setKey)(key, land);
+    },
+};
+const sendChildMessage = (message, data) => {
+    child.send({ message, data });
+};
+const downloadStart = () => {
+    sendChildMessage(process_1.ProcessMessages.downloadStart);
+};
+downloadStart();
+child.on('message', ({ message, data }) => __awaiter(void 0, void 0, void 0, function* () {
+    const messageHandler = processMessages[message];
+    if (!messageHandler)
+        return;
+    yield messageHandler(data);
+}));
