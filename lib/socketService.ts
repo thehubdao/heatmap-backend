@@ -1,16 +1,12 @@
 import { Socket } from 'socket.io'
 import { Metaverse } from '../types/metaverse'
-import {
-    getMetaverse,
-    cache,
-    getLandKey,
-    metaverseKeyTotalAmount,
-} from './metaverseService'
 import { socketReceiverMessages, socketSenderMessages } from '../types/socket'
+import { getBulkKeys, getKey } from './cacheService'
+import { getMetaverseKeys } from './utils/metaverseService'
 
 export const renderStart = async (socket: Socket, metaverse: Metaverse) => {
     console.log('render-start', metaverse)
-    const metaverseKeys = getMetaverse(metaverse) as [string]
+    const metaverseKeys = getMetaverseKeys(metaverse) as [string]
     await renderLands(socket, metaverse, metaverseKeys)
 }
 
@@ -19,7 +15,7 @@ export const renderContinue = async (
     metaverse: Metaverse,
     keyIndex: number
 ) => {
-    const metaverseKeys = getMetaverse(metaverse)
+    const metaverseKeys = getMetaverseKeys(metaverse)
     const metaverseLeftKeys = metaverseKeys.slice(
         keyIndex,
         metaverseKeys.length
@@ -33,25 +29,25 @@ const renderLands = async (
     landKeys: [string]
 ) => {
     for (const keyIndex in landKeys) {
-        const land = await cache.get(landKeys[keyIndex])
+        const land = await getKey(landKeys[keyIndex])
         socket.emit(socketSenderMessages.newLandData, land, keyIndex)
     }
     socket.emit(socketSenderMessages.renderFinish)
 }
 
-export const giveLand = async (
+/* export const giveLand = async (
     socket: Socket,
     metaverse: Metaverse,
     index: number
 ) => {
-    const land = await cache.get(getLandKey(metaverse, index))
+    const land = await getKey(getLandKey(metaverse, index))
     let prevIndex: number | null = index - 1
     let nextIndex: number | null = index + 1
     if (prevIndex < 0) prevIndex = null
     if (nextIndex >= metaverseKeyTotalAmount(metaverse)) nextIndex = null
 
     socket.emit(socketSenderMessages.giveLand, land, prevIndex, nextIndex)
-}
+} */
 
 export const rendernewLandBulkData = async (
     socket: Socket,
@@ -64,7 +60,7 @@ export const rendernewLandBulkData = async (
     const formattedLandKeys = limitedLandKeys.map(
         (landKey) => metaverse + landKey
     )
-    const lands = await cache.mget(formattedLandKeys)
+    const lands = await getBulkKeys(formattedLandKeys)
     socket.emit(socketSenderMessages.newBulkData, lands)
 }
 

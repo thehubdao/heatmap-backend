@@ -43,7 +43,8 @@
     },
     "scripts": {
         "start": "nodemon index.ts",
-        "build": "tsc --build"
+        "build": "tsc --build",
+        "dev": "ts-node index.ts"
     },
     "author": "",
     "license": "ISC",
@@ -53,4 +54,5 @@
         "@types/node": "^18.7.16",
         "typescript": "^4.8.3"
     }
+      
 }

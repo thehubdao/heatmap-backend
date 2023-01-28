@@ -56,13 +56,15 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
         const landChunkKeys = Object.keys(landChunk);
         if (landChunkKeys.length < 1)
             return;
+        const keyArray = metaverses[metaverse];
         const landsFormatted = landChunkKeys.map((key) => {
-            const keyArray = metaverses[metaverse];
             keyArray.push(key);
             landChunk[key].tokenId = key;
             key = metaverse + key; //Each key has metaverse name concat
             return { key, val: landChunk[key] };
         });
+        const keyArrayKey = `${metaverse}-keys`;
+        sendParentMessage(process_1.ProcessMessages.setCacheKey, { key: keyArrayKey, data: keyArray });
         sendParentMessage(process_1.ProcessMessages.newMetaverseChunk, landsFormatted);
         console.log('Response', landChunkKeys.length, new Date(), i, landsChunkLimit);
     }
@@ -128,7 +130,6 @@ const updateMetaverses = () => __awaiter(void 0, void 0, void 0, function* () {
     const metaverses = Object.keys(metaverse_1.metaverseObject);
     for (const metaverse of metaverses) {
         try {
-            console.log(metaverse);
             yield requestMetaverseLands(metaverse);
             const listings = yield getListings(metaverse);
             for (const listing of listings) {
@@ -136,7 +137,6 @@ const updateMetaverses = () => __awaiter(void 0, void 0, void 0, function* () {
                 sendParentMessage(process_1.ProcessMessages.getCacheKey, key);
                 const getLandPromise = new Promise((resolve) => {
                     process.once('message', ({ message, data }) => {
-                        console.log(message, data);
                         if (message == process_1.ProcessMessages.sendCacheKey)
                             resolve(data);
                     });

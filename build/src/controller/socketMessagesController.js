@@ -20,9 +20,9 @@ const socketMessagesController = (socket) => {
         [socket_1.socketReceiverMessages.renderStart]: (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
             yield (0, socketService_1.renderStart)(socket, metaverse);
         }),
-        [socket_1.socketReceiverMessages.getLand]: (metaverse, index) => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, socketService_1.giveLand)(socket, metaverse, index);
-        }),
+        /*         [socketReceiverMessages.getLand]: async (metaverse:Metaverse, index:number)=>{
+                    await giveLand(socket,metaverse,index)
+                }, */
         [socket_1.socketReceiverMessages.renderContinue]: () => {
         }
     };

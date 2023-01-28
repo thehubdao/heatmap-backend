@@ -9,45 +9,48 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clientDisconnect = exports.clientConnect = exports.pingPong = exports.rendernewLandBulkData = exports.giveLand = exports.renderContinue = exports.renderStart = void 0;
-const metaverseService_1 = require("./metaverseService");
+exports.clientDisconnect = exports.clientConnect = exports.pingPong = exports.rendernewLandBulkData = exports.renderContinue = exports.renderStart = void 0;
 const socket_1 = require("../types/socket");
+const cacheService_1 = require("./cacheService");
+const metaverseService_1 = require("./utils/metaverseService");
 const renderStart = (socket, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('render-start', metaverse);
-    const metaverseKeys = (0, metaverseService_1.getMetaverse)(metaverse);
+    const metaverseKeys = (0, metaverseService_1.getMetaverseKeys)(metaverse);
     yield renderLands(socket, metaverse, metaverseKeys);
 });
 exports.renderStart = renderStart;
 const renderContinue = (socket, metaverse, keyIndex) => __awaiter(void 0, void 0, void 0, function* () {
-    const metaverseKeys = (0, metaverseService_1.getMetaverse)(metaverse);
+    const metaverseKeys = (0, metaverseService_1.getMetaverseKeys)(metaverse);
     const metaverseLeftKeys = metaverseKeys.slice(keyIndex, metaverseKeys.length);
     yield renderLands(socket, metaverse, metaverseLeftKeys);
 });
 exports.renderContinue = renderContinue;
 const renderLands = (socket, metaverse, landKeys) => __awaiter(void 0, void 0, void 0, function* () {
     for (const keyIndex in landKeys) {
-        const land = yield metaverseService_1.cache.get(landKeys[keyIndex]);
+        const land = yield (0, cacheService_1.getKey)(landKeys[keyIndex]);
         socket.emit(socket_1.socketSenderMessages.newLandData, land, keyIndex);
     }
     socket.emit(socket_1.socketSenderMessages.renderFinish);
 });
-const giveLand = (socket, metaverse, index) => __awaiter(void 0, void 0, void 0, function* () {
-    const land = yield metaverseService_1.cache.get((0, metaverseService_1.getLandKey)(metaverse, index));
-    let prevIndex = index - 1;
-    let nextIndex = index + 1;
-    if (prevIndex < 0)
-        prevIndex = null;
-    if (nextIndex >= (0, metaverseService_1.metaverseKeyTotalAmount)(metaverse))
-        nextIndex = null;
-    socket.emit(socket_1.socketSenderMessages.giveLand, land, prevIndex, nextIndex);
-});
-exports.giveLand = giveLand;
+/* export const giveLand = async (
+    socket: Socket,
+    metaverse: Metaverse,
+    index: number
+) => {
+    const land = await getKey(getLandKey(metaverse, index))
+    let prevIndex: number | null = index - 1
+    let nextIndex: number | null = index + 1
+    if (prevIndex < 0) prevIndex = null
+    if (nextIndex >= metaverseKeyTotalAmount(metaverse)) nextIndex = null
+
+    socket.emit(socketSenderMessages.giveLand, land, prevIndex, nextIndex)
+} */
 const rendernewLandBulkData = (socket, metaverse, landKeys) => __awaiter(void 0, void 0, void 0, function* () {
     const landKeysLimit = 10;
     const startLandKeysIndex = 0;
     const limitedLandKeys = landKeys.slice(startLandKeysIndex, landKeysLimit);
     const formattedLandKeys = limitedLandKeys.map((landKey) => metaverse + landKey);
-    const lands = yield metaverseService_1.cache.mget(formattedLandKeys);
+    const lands = yield (0, cacheService_1.getBulkKeys)(formattedLandKeys);
     socket.emit(socket_1.socketSenderMessages.newBulkData, lands);
 });
 exports.rendernewLandBulkData = rendernewLandBulkData;
