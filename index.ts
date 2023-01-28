@@ -1,3 +1,4 @@
+const {fork} = require('child_process')
 import { Socket } from 'socket.io'
 import { defineHandlers } from './lib/utils/socketUtils'
 import { socketMessagesController } from './src/controller/socketMessagesController'
