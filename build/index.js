@@ -14,13 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const socketUtils_1 = require("./lib/utils/socketUtils");
 const socketMessagesController_1 = require("./src/controller/socketMessagesController");
-require("./src/process/metaverseProcess");
 const cors_1 = __importDefault(require("cors"));
-const metaverseService_1 = require("./lib/metaverseService");
 const limitsController_1 = require("./src/controller/limitsController");
 const socketService_1 = require("./lib/socketService");
 const socket_1 = require("./types/socket");
-require("./src/process/parentProcess");
 const child_process_1 = require("child_process");
 const cacheService_1 = require("./lib/cacheService");
 const process_1 = require("./types/process");
@@ -46,17 +43,13 @@ const io = new Server(server, {
 });
 io.on(socket_1.socketReceiverMessages.socketConnect, (socket) => __awaiter(void 0, void 0, void 0, function* () {
     (0, socketService_1.clientConnect)(socket);
-    socket.on("connect_error", (err) => {
+    socket.on('connect_error', (err) => {
         console.log(`connect_error due to ${err.message}`);
     });
     (0, socketUtils_1.defineHandlers)(socket, (0, socketMessagesController_1.socketMessagesController)(socket));
 }));
 server.listen(port, () => {
     console.log('Sockets listening on port: ' + port);
-});
-app.get('/metaverse', (req, res) => {
-    //console.log("Metaverse",req,getMetaverse(req.metaverse))
-    return res.send((0, metaverseService_1.getMetaverse)(req.query.metaverse));
 });
 app.get('/limits', limitsController_1.getLimitsController);
 const child = (0, child_process_1.fork)('./src/process/downloadMetaverseProcess.ts');
@@ -68,8 +61,8 @@ const processMessages = {
         const cacheValue = (0, cacheService_1.getKey)(key);
         sendChildMessage(process_1.ProcessMessages.sendCacheKey, cacheValue);
     },
-    [process_1.ProcessMessages.setCacheKey]({ key, land }) {
-        (0, cacheService_1.setKey)(key, land);
+    [process_1.ProcessMessages.setCacheKey]({ key, data }) {
+        (0, cacheService_1.setKey)(key, data);
     },
 };
 const sendChildMessage = (message, data) => {
@@ -78,10 +71,11 @@ const sendChildMessage = (message, data) => {
 const downloadStart = () => {
     sendChildMessage(process_1.ProcessMessages.downloadStart);
 };
-downloadStart();
 child.on('message', ({ message, data }) => __awaiter(void 0, void 0, void 0, function* () {
     const messageHandler = processMessages[message];
     if (!messageHandler)
         return;
     yield messageHandler(data);
 }));
+downloadStart();
+setInterval(downloadStart, 10000000);

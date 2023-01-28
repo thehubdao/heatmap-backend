@@ -7,7 +7,8 @@ export const setKey = (key: string, value: any) => {
 
 export const setBulkKeys = (keys: []) => {
     cache.mset(keys)
-    console.log(cache.getStats())
 }
 
 export const getKey = (key: string) => cache.get(key)
+
+export const getBulkKeys = (keys: string[]) => cache.mget(keys)

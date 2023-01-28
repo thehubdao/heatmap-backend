@@ -1,5 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const __1 = require("../..");
 const processUtils_1 = require("../../lib/utils/processUtils");
-const parentProcess_1 = require("./parentProcess");
-(0, processUtils_1.resetAtMidnight)(parentProcess_1.downloadStart);
+(0, processUtils_1.resetAtMidnight)(__1.downloadStart);
