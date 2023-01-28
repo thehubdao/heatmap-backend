@@ -32,10 +32,10 @@ const getMetaverseAddress = (metaverse) => {
 exports.getMetaverseAddress = getMetaverseAddress;
 const metaverseUrl = (metaverse) => {
     const urls = {
-        'somnium-space': process.env.SOMNIUM_URL,
-        'axie-infinity': process.env.AXIE_URL,
-        decentraland: process.env.DECENTRALAND_URL,
-        sandbox: process.env.SANDBOX_URL,
+        'somnium-space': `${process.env.SOMNIUM_URL}/map`,
+        'axie-infinity': `${process.env.AXIE_URL}/requestMap`,
+        decentraland: `${process.env.DECENTRALAND_URL}/map`,
+        sandbox: `${process.env.SANDBOX_URL}/map`,
     };
     return urls[metaverse];
 };

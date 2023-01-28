@@ -1,71 +1,58 @@
 import axios from 'axios'
 import { getMetaverseCalcs } from '../controller/limitsController'
-const NodeCache = require('node-cache')
-const cache = new NodeCache()
 import { Metaverse, metaverseObject } from '../../types/metaverse'
 import {
     metaverseUrl,
     heatmapMvLandsPerRequest,
 } from '../../lib/utils/metaverseUtils'
+import { ProcessMessages } from '../../types/process'
 
 let chunkSize = 0
 
-let metaversesGeneralData: any = {}
-
-let metaverses: Record<Metaverse, any> = {
-    decentraland: undefined,
-    'somnium-space': undefined,
-    sandbox: undefined,
-    'axie-infinity': undefined,
+const metaverses: Record<Metaverse, Array<any>> = {
+    decentraland: [],
+    'somnium-space': [],
+    sandbox: [],
+    'axie-infinity': [],
 }
 
 const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
-    let response: any
     try {
-        response = await axios.get(
-            `${metaverseUrl(metaverse)}/${
-                metaverse === 'axie-infinity' ? 'requestMap' : 'map'
-            }?from=${i}&size=${
-                heatmapMvLandsPerRequest[metaverse].lands
-            }&reduced=true`,
-            {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                },
-            }
-        )
-
-        response = response.data as any
-        if (Object.keys(response).length < 1) return
-        ;(Object.keys(response) as any).forEach((key: any) => {
-            response[key].tokenId = key
+        const landsChunkLimit = heatmapMvLandsPerRequest[metaverse].lands
+        const requestLandsUrl: string = `${metaverseUrl(
+            metaverse
+        )}?from=${i}&size=${landsChunkLimit}&reduced=true`
+        const requestLandChunk = await axios.get(requestLandsUrl, {
+            headers: {
+                Accept: 'application/json',
+            },
         })
+        const landChunk = requestLandChunk.data
+        const landChunkKeys = Object.keys(landChunk)
+
+        if (landChunkKeys.length < 1) return
+
+        const landsFormatted = landChunkKeys.map((key: any) => {
+            const keyArray = metaverses[metaverse]
+            keyArray.push(key)
+            landChunk[key].tokenId = key
+            key = metaverse + key //Each key has metaverse name concat
+            return { key, val: landChunk[key] }
+        })
+
+        sendParentMessage(ProcessMessages.newMetaverseChunk, landsFormatted)
+
         console.log(
             'Response',
-            Object.keys(response).length,
+            landChunkKeys.length,
             new Date(),
             i,
-            heatmapMvLandsPerRequest[metaverse].lands
+            landsChunkLimit
         )
-    } catch {
-        response = {}
+    } catch (error) {
+        console.log(error)
     }
-    cache.mset(
-        (Object.keys(response) as any).map((key: any) => {
-            return { key: metaverse + key, val: response[key] }
-        })
-    )
 
-    if (metaverses[metaverse])
-        metaverses[metaverse] = metaverses[metaverse].concat(
-            Object.keys(response).map((key) => metaverse + key)
-        )
-    else
-        metaverses[metaverse] = Object.keys(response).map(
-            (key) => metaverse + key
-        )
-    console.log(/* metaverses[metaverse], */ cache.getStats())
     return {}
 }
 
@@ -88,80 +75,81 @@ const arrayFromAsync = async (asyncIterable: AsyncGenerator) => {
     return results
 }
 
-export const requestMetaverseLands = (metaverse: Metaverse) => {
+ const requestMetaverseLands = (metaverse: Metaverse) => {
     chunkSize = heatmapMvLandsPerRequest[metaverse].lands
-    metaverses[metaverse] = undefined
     return arrayFromAsync(
         iterateAllAsync((i: number) => requestMetaverseMap(i, metaverse), 0)
     )
 }
 
-export const getMetaverses = () => metaverses
-
-export const getListings = async (metaverse: Metaverse) => {
+ const getListings = async (metaverse: Metaverse) => {
+    const landsChunkLimit = heatmapMvLandsPerRequest[metaverse].lands
+    const listingUrl =
+        process.env.OPENSEA_SERVICE_URL +
+        `/opensea/collections/${metaverse}/listings`
     let listings: Array<any> = []
-    for (let i = 0; ; i += heatmapMvLandsPerRequest[metaverse].lands) {
-        let listingsChunk: Array<any> = await (
-            await axios({
-                method: 'get',
-                url:
-                    process.env.OPENSEA_SERVICE_URL +
-                    `/opensea/collections/${metaverse}/listings?from=${i}&size=${heatmapMvLandsPerRequest[metaverse].lands}`,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-        ).data.result
+
+    for (let i = 0; ; i += landsChunkLimit) {
+        const listingRequestUrl = `${listingUrl}?from=${i}&size=${landsChunkLimit}`
+        const listingsRequest = await axios.get(listingRequestUrl, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+
+        const listingsChunk = listingsRequest.data.result
+
         if (listingsChunk.length == 0) return listings
+
         listings = listings.concat(listingsChunk)
     }
 }
 
-export const updateMetaverses = async () => {
-    for (let metaverse of Object.keys(metaverseObject)) {
+ const updateMetaverses = async () => {
+    const metaverses = Object.keys(metaverseObject)
+    for (const metaverse of metaverses) {
         try {
+            console.log(metaverse)
             await requestMetaverseLands(metaverse as Metaverse)
-            let listings = await getListings(metaverse as Metaverse)
-            for (let value of listings) {
-                let key = metaverse + value.tokenId
-                let land = cache.get(key)
-                let pred_price = land?.eth_predicted_price
-                if (value.currentPrice) {
-                    land.current_price_eth = value.currentPrice
-                        ? value.currentPrice.eth_price
-                        : undefined
-                    land.percent = value.currentPrice
-                        ? 100 * (value.currentPrice.eth_price / pred_price - 1)
-                        : undefined
-                }
-                land.best_offered_price_eth = value.bestOfferedPrice
-                    ? value.bestOfferedPrice.eth_price
-                    : undefined
-                cache.set(key, land)
+            const listings = await getListings(metaverse as Metaverse)
+            for (const listing of listings) {
+                let key = metaverse + listing.tokenId
+                sendParentMessage(ProcessMessages.getCacheKey, key)
+                const getLandPromise = new Promise<any>((resolve) => {
+                    process.once('message', ({message,data})=>{
+                        console.log(message,data)
+                        if(message == ProcessMessages.sendCacheKey)
+                        resolve(data)})
+                })
+                const land = await getLandPromise
+                const {currentPrice} = listing
+                if (currentPrice) land.current_price_eth = currentPrice.eth_price
+
+                sendParentMessage(ProcessMessages.setCacheKey, { key, land })
             }
             const metaverseGeneralData = getMetaverseCalcs(
                 metaverse as Metaverse
             )
-            console.log(`${metaverse}-generalData`, metaverseGeneralData)
-            metaversesGeneralData[
-                `${metaverse}-generalData`
-            ] = metaverseGeneralData
+            sendParentMessage(ProcessMessages.setCacheKey, { key:`${metaverse}-generalData`, metaverseGeneralData })
         } catch (err) {
             console.log(err)
         }
     }
 }
-const processMessages:any = {
-    async downloadStart() {
+const processMessages: any = {
+    async [ProcessMessages.downloadStart]() {
         await updateMetaverses()
     },
 }
 
-process.on('message', async (message:any) => {
-   await processMessages[message]()
+process.on('message', async ({message}:any) => {
+    const messageHandler = processMessages[message]
+    if(!messageHandler) return
+    await messageHandler()
 })
 
-const sendParentMessage = (message: any, data: any) => {
-    const { send }: any = process
-    send({ message, data })
+const sendParentMessage = (message: any, data?: any) => {
+    const moldableProcess = process as any
+    if(!moldableProcess) return
+    moldableProcess.send({ message, data })
 }

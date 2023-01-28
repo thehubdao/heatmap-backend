@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const socketUtils_1 = require("./lib/utils/socketUtils");
 const socketMessagesController_1 = require("./src/controller/socketMessagesController");
+require("./src/process/downloadMetaverseProcess");
 require("./src/process/metaverseProcess");
 const cors_1 = __importDefault(require("cors"));
 const metaverseService_1 = require("./lib/metaverseService");
