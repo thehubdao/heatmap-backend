@@ -8,12 +8,15 @@ import { socketReceiverMessages } from './types/socket'
 import { fork } from 'child_process'
 import { getKey, setBulkKeys, setKey } from './lib/cacheService'
 import { ProcessMessages } from './types/process'
+import {config} from 'dotenv'
+
+config()
 
 const app = require('express')()
 app.use(cors())
 const server = require('http').createServer(app)
 const Server = require('socket.io').Server
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 3005
 const io = new Server(server, {
     cors: {
         origin: '*',
