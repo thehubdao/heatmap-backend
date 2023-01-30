@@ -5,6 +5,7 @@ export enum ProcessMessages{
     sendCacheKey = 'send-cache-key',
     downloadStart = 'download-start',
     setMetaverseGeneralData = 'set-metaverse-general-data',
-    setBulkMetaverseKeys = 'set-bulk-metaverse-keys'
+    setBulkMetaverseKeys = 'set-bulk-metaverse-keys',
+    setMetaverseCalcs = 'set-metaverse-calcs',
 
 }

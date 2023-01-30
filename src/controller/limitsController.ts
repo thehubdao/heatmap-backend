@@ -2,7 +2,7 @@ import { ValueOf, ValuationTile, MapFilter } from '../../types/types'
 import { typedKeys } from '../utilities/typedKeys'
 import { Metaverse } from '../../types/metaverse'
 import { getMetaverseKeys } from '../../lib/utils/metaverseService'
-import { getBulkKeys, getKey } from '../../lib/cacheService'
+import { getBulkKeys, getKey, setKey } from '../../lib/cacheService'
 
 export const getMax = (array: (number | undefined)[]) => {
     let max = 0
@@ -163,6 +163,11 @@ export const getMetaverseCalcs = (metaverse: Metaverse) => {
     const lands = getBulkKeys(metaverseKeys)
     return getGeneralData(lands)
 }
+
+export const setMetaverseCalcs = (metaverse: Metaverse) => {
+    const metaverseGeneralData = getMetaverseCalcs(metaverse)
+    setKey(`${metaverse}-generalData`, metaverseGeneralData)
+    console.log(metaverseGeneralData)}
 
 export const getLimitsController = async (req: any, res: any) => {
     const {metaverse} = req.query
