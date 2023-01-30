@@ -58,7 +58,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         sendParentMessage(ProcessMessages.newMetaverseChunk, landsFormatted)
 
         console.log(
-/*             new Date(), */
+            /*             new Date(), */
             'RESPONSE',
             `metaverse: ${metaverse};`,
             `land_amount: ${landChunkKeys.length};`,
@@ -91,18 +91,21 @@ const getListings = async (metaverse: Metaverse) => {
     let listings: Array<any> = []
 
     for (let i = 0; ; i += landsChunkLimit) {
-        const listingRequestUrl = `${listingUrl}?from=${i}&size=${landsChunkLimit}`
-        const listingsRequest = await axios.get(listingRequestUrl, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
+        try {
+            const listingRequestUrl = `${listingUrl}?from=${i}&size=${landsChunkLimit}`
+            const listingsRequest = await axios.get(listingRequestUrl, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
 
-        const listingsChunk = listingsRequest.data.result
+            const listingsChunk = listingsRequest.data.result
+            if (listingsChunk.length == 0) return listings
 
-        if (listingsChunk.length == 0) return listings
-
-        listings = listings.concat(listingsChunk)
+            listings = listings.concat(listingsChunk)
+        } catch (err) {
+            console.log(err)
+        }
     }
 }
 
