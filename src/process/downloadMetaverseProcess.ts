@@ -22,11 +22,24 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         const requestLandsUrl: string = `${metaverseUrl(
             metaverse
         )}?from=${i}&size=${landsChunkLimit}&reduced=true`
-        const requestLandChunk = await axios.get(requestLandsUrl, {
-            headers: {
-                Accept: 'application/json',
-            },
-        })
+        let requestLandChunk
+        
+        try {
+            requestLandChunk = await axios.get(requestLandsUrl, {
+                headers: {
+                    Accept: 'application/json',
+                },
+            })
+        } catch (err) {
+            console.log(err)
+            console.log('Retrying')
+            requestLandChunk = await axios.get(requestLandsUrl, {
+                headers: {
+                    Accept: 'application/json',
+                },
+            })
+        }
+
         const landChunk = requestLandChunk.data
         const landChunkKeys = Object.keys(landChunk)
 
@@ -120,9 +133,9 @@ const updateMetaverses = async () => {
         try {
             await requestMetaverseLands(metaverse as Metaverse)
             const listings = await getListings(metaverse as Metaverse)
-            
-                for (const listing of listings) {
-                    try {
+
+            for (const listing of listings) {
+                try {
                     let key = metaverse + listing.tokenId
                     sendParentMessage(ProcessMessages.getCacheKey, key)
                     const getLandPromise = new Promise<any>((resolve) => {
@@ -143,8 +156,7 @@ const updateMetaverses = async () => {
                 } catch (error) {
                     console.log(error)
                 }
-                }
-            
+            }
 
             const metaverseGeneralData = getMetaverseCalcs(
                 metaverse as Metaverse
