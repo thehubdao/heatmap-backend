@@ -41,7 +41,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         })
         const keyArrayKey = `${metaverse}-keys`
         
-        sendParentMessage(ProcessMessages.pushMetaverseKeys, {
+        sendParentMessage(ProcessMessages.setBulkMetaverseKeys, {
             metaverse,
             keys: keyArray,
         })

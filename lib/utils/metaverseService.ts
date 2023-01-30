@@ -1,15 +1,17 @@
 import { Metaverse } from '../../types/metaverse'
 
-const metaverses: Record<Metaverse, Array<any>> = {
-    decentraland: [],
-    'somnium-space': [],
-    sandbox: [],
-    'axie-infinity': [],
+const metaverses: Record<Metaverse, any> = {
+    decentraland: {},
+    'somnium-space': {},
+    sandbox: {},
+    'axie-infinity': {},
 }
 
-export const pushMetaverseKeys = (metaverse: Metaverse, keys: [string]) => {
-    metaverses[metaverse] = metaverses[metaverse].concat(keys)
+export const setBulkMetaverseKeys = (metaverse: Metaverse, keys: [string]) => {
+    keys.forEach((key) => {
+        metaverses[metaverse][key] = key
+    })
 }
 export const getMetaverseKeys = (metaverse: Metaverse) => {
-    return metaverses[metaverse]
+    return Object.keys(metaverses[metaverse])
 }
