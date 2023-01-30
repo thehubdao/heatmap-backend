@@ -8,7 +8,8 @@ import { socketReceiverMessages } from './types/socket'
 import { fork } from 'child_process'
 import { getKey, setBulkKeys, setKey } from './lib/cacheService'
 import { ProcessMessages } from './types/process'
-import {config} from 'dotenv'
+import { config } from 'dotenv'
+import { pushMetaverseKeys } from './lib/utils/metaverseService'
 
 config()
 
@@ -50,6 +51,9 @@ const processMessages: any = {
     },
     [ProcessMessages.setCacheKey]({ key, data }: any) {
         setKey(key, data)
+    },
+    [ProcessMessages.pushMetaverseKeys]({ metaverse, keys }: any) {
+        pushMetaverseKeys(metaverse, keys)
     },
 }
 

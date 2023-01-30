@@ -9,6 +9,10 @@ export const setBulkKeys = (keys: []) => {
     cache.mset(keys)
 }
 
-export const getKey = (key: string) => cache.get(key)
+export const getKey = (key: string) => {
+    return cache.get(key)
+}
 
-export const getBulkKeys = (keys: string[]) => cache.mget(keys)
+export const getBulkKeys = (keys: string[]) => {
+    return cache.mget(keys)
+}
