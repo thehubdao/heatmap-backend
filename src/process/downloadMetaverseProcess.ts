@@ -58,12 +58,13 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         sendParentMessage(ProcessMessages.newMetaverseChunk, landsFormatted)
 
         console.log(
-            new Date(),
+/*             new Date(), */
             'RESPONSE',
-            `Land amount: ${landChunkKeys.length};`,
-            `Metaverse chunk limit ${landsChunkLimit};`,
-            `From ${i};`,
-            `To ${i + landsChunkLimit};`
+            `metaverse: ${metaverse}`,
+            `land_amount: ${landChunkKeys.length};`,
+            `metaverse_chunk_limit: ${landsChunkLimit};`,
+            `from: ${i};`,
+            `to: ${i + landsChunkLimit};`
         )
     } catch (error) {
         console.log(error)
