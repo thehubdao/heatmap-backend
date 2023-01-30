@@ -23,7 +23,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
             metaverse
         )}?from=${i}&size=${landsChunkLimit}&reduced=true`
         let requestLandChunk
-        
+
         try {
             requestLandChunk = await axios.get(requestLandsUrl, {
                 headers: {
@@ -43,7 +43,9 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         const landChunk = requestLandChunk.data
         const landChunkKeys = Object.keys(landChunk)
 
-        if (landChunkKeys.length < 1) return
+        if (landChunkKeys.length < 1) {
+            console.log("Metaverse finish")
+            return}
         const keyArray: any[] = []
         const landsFormatted = landChunkKeys.map((key: any) => {
             const land = landChunk[key]
