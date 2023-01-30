@@ -31,16 +31,24 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         const landChunkKeys = Object.keys(landChunk)
 
         if (landChunkKeys.length < 1) return
-        const keyArray = metaverses[metaverse]
+        const keyArray:any[] = []
         const landsFormatted = landChunkKeys.map((key: any) => {
-            
-            keyArray.push(key)
+            const land = landChunk[key]
             landChunk[key].tokenId = key
             key = metaverse + key //Each key has metaverse name concat
-            return { key, val: landChunk[key] }
+            keyArray.push(key)
+            return { key, val: land }
         })
         const keyArrayKey = `${metaverse}-keys`
-        sendParentMessage(ProcessMessages.setCacheKey, { key:keyArrayKey, data:keyArray })
+        
+        sendParentMessage(ProcessMessages.pushMetaverseKeys, {
+            metaverse,
+            keys: keyArray,
+        })
+        sendParentMessage(ProcessMessages.setCacheKey, {
+            key: keyArrayKey,
+            data: keyArray,
+        })
         sendParentMessage(ProcessMessages.newMetaverseChunk, landsFormatted)
 
         console.log(
@@ -76,14 +84,14 @@ const arrayFromAsync = async (asyncIterable: AsyncGenerator) => {
     return results
 }
 
- const requestMetaverseLands = (metaverse: Metaverse) => {
+const requestMetaverseLands = (metaverse: Metaverse) => {
     chunkSize = heatmapMvLandsPerRequest[metaverse].lands
     return arrayFromAsync(
         iterateAllAsync((i: number) => requestMetaverseMap(i, metaverse), 0)
     )
 }
 
- const getListings = async (metaverse: Metaverse) => {
+const getListings = async (metaverse: Metaverse) => {
     const landsChunkLimit = heatmapMvLandsPerRequest[metaverse].lands
     const listingUrl =
         process.env.OPENSEA_SERVICE_URL +
@@ -106,7 +114,7 @@ const arrayFromAsync = async (asyncIterable: AsyncGenerator) => {
     }
 }
 
- const updateMetaverses = async () => {
+const updateMetaverses = async () => {
     const metaverses = Object.keys(metaverseObject)
     for (const metaverse of metaverses) {
         try {
@@ -116,20 +124,28 @@ const arrayFromAsync = async (asyncIterable: AsyncGenerator) => {
                 let key = metaverse + listing.tokenId
                 sendParentMessage(ProcessMessages.getCacheKey, key)
                 const getLandPromise = new Promise<any>((resolve) => {
-                    process.once('message', ({message,data})=>{
-                        if(message == ProcessMessages.sendCacheKey)
-                        resolve(data)})
+                    process.once('message', ({ message, data }) => {
+                        if (message == ProcessMessages.sendCacheKey)
+                            resolve(data)
+                    })
                 })
                 const land = await getLandPromise
-                const {currentPrice} = listing
-                if (currentPrice) land.current_price_eth = currentPrice.eth_price
+                const { currentPrice } = listing
+                if (currentPrice)
+                    land.current_price_eth = currentPrice.eth_price
 
-                sendParentMessage(ProcessMessages.setCacheKey, { key, land })
+                sendParentMessage(ProcessMessages.setCacheKey, {
+                    key,
+                    data: land,
+                })
             }
             const metaverseGeneralData = getMetaverseCalcs(
                 metaverse as Metaverse
             )
-            sendParentMessage(ProcessMessages.setCacheKey, { key:`${metaverse}-generalData`, metaverseGeneralData })
+            sendParentMessage(ProcessMessages.setCacheKey, {
+                key: `${metaverse}-generalData`,
+                data: metaverseGeneralData,
+            })
         } catch (err) {
             console.log(err)
         }
@@ -141,14 +157,14 @@ const processMessages: any = {
     },
 }
 
-process.on('message', async ({message}:any) => {
+process.on('message', async ({ message }: any) => {
     const messageHandler = processMessages[message]
-    if(!messageHandler) return
+    if (!messageHandler) return
     await messageHandler()
 })
 
 const sendParentMessage = (message: any, data?: any) => {
     const moldableProcess = process as any
-    if(!moldableProcess) return
+    if (!moldableProcess) return
     moldableProcess.send({ message, data })
 }
