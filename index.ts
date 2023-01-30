@@ -2,7 +2,7 @@ import { Socket } from 'socket.io'
 import { defineHandlers } from './lib/utils/socketUtils'
 import { socketMessagesController } from './src/controller/socketMessagesController'
 import cors from 'cors'
-import { getLimitsController } from './src/controller/limitsController'
+import { getLimitsController, setMetaverseCalcs } from './src/controller/limitsController'
 import { clientConnect } from './lib/socketService'
 import { socketReceiverMessages } from './types/socket'
 import { fork } from 'child_process'
@@ -10,6 +10,7 @@ import { getKey, setBulkKeys, setKey } from './lib/cacheService'
 import { ProcessMessages } from './types/process'
 import { config } from 'dotenv'
 import { setBulkMetaverseKeys } from './lib/utils/metaverseService'
+import { Metaverse } from './types/metaverse'
 
 config()
 
@@ -67,6 +68,9 @@ const processMessages: any = {
     [ProcessMessages.setBulkMetaverseKeys]({ metaverse, keys }: any) {
         setBulkMetaverseKeys(metaverse, keys)
     },
+    [ProcessMessages.setMetaverseCalcs](metaverse:Metaverse){
+        setMetaverseCalcs(metaverse)
+    }
 }
 
 const sendChildMessage = (message: any, data?: any) => {

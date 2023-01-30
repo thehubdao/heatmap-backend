@@ -131,21 +131,13 @@ const setListings = async (metaverse: Metaverse) => {
     }
 }
 
-const setMetaverseCalcs = (metaverse: Metaverse) => {
-    const metaverseGeneralData = getMetaverseCalcs(metaverse)
-    sendParentMessage(ProcessMessages.setCacheKey, {
-        key: `${metaverse}-generalData`,
-        data: metaverseGeneralData,
-    })
-}
-
 const updateMetaverses = async () => {
     const metaverses: Metaverse[] = Object.keys(metaverseObject) as Metaverse[]
     for (const metaverse of metaverses) {
         try {
             await requestMetaverseLands(metaverse)
             await setListings(metaverse)
-            setMetaverseCalcs(metaverse)
+            sendParentMessage(ProcessMessages.setMetaverseCalcs,metaverse)
         } catch (err) {
             console.log(err)
         }
