@@ -9,7 +9,7 @@ import { fork } from 'child_process'
 import { getKey, setBulkKeys, setKey } from './lib/cacheService'
 import { ProcessMessages } from './types/process'
 import { config } from 'dotenv'
-import { pushMetaverseKeys } from './lib/utils/metaverseService'
+import { setBulkMetaverseKeys } from './lib/utils/metaverseService'
 
 config()
 
@@ -64,8 +64,8 @@ const processMessages: any = {
     [ProcessMessages.setCacheKey]({ key, data }: any) {
         setKey(key, data)
     },
-    [ProcessMessages.pushMetaverseKeys]({ metaverse, keys }: any) {
-        pushMetaverseKeys(metaverse, keys)
+    [ProcessMessages.setBulkMetaverseKeys]({ metaverse, keys }: any) {
+        setBulkMetaverseKeys(metaverse, keys)
     },
 }
 
@@ -84,4 +84,4 @@ child.on('message', async ({ message, data }: any) => {
 })
 
 downloadStart()
-setInterval(downloadStart, 10000000)
+setInterval(downloadStart, 120000)
