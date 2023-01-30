@@ -120,8 +120,9 @@ const updateMetaverses = async () => {
         try {
             await requestMetaverseLands(metaverse as Metaverse)
             const listings = await getListings(metaverse as Metaverse)
-            try {
+            
                 for (const listing of listings) {
+                    try {
                     let key = metaverse + listing.tokenId
                     sendParentMessage(ProcessMessages.getCacheKey, key)
                     const getLandPromise = new Promise<any>((resolve) => {
@@ -139,10 +140,11 @@ const updateMetaverses = async () => {
                         key,
                         data: land,
                     })
+                } catch (error) {
+                    console.log(error)
                 }
-            } catch (error) {
-                console.log(error)
-            }
+                }
+            
 
             const metaverseGeneralData = getMetaverseCalcs(
                 metaverse as Metaverse
