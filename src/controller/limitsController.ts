@@ -166,8 +166,7 @@ export const getMetaverseCalcs = (metaverse: Metaverse) => {
 
 export const setMetaverseCalcs = (metaverse: Metaverse) => {
     const metaverseGeneralData = getMetaverseCalcs(metaverse)
-    setKey(`${metaverse}-generalData`, metaverseGeneralData)
-    console.log(metaverseGeneralData)}
+    setKey(`${metaverse}-generalData`, metaverseGeneralData)}
 
 export const getLimitsController = async (req: any, res: any) => {
     const {metaverse} = req.query

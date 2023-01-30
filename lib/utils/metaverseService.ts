@@ -4,7 +4,7 @@ const metaverses: Record<Metaverse, any> = {
     decentraland: {},
     'somnium-space': {},
     sandbox: {},
-    'axie-infinity': {},
+/*     'axie-infinity': {}, */
 }
 
 export const setBulkMetaverseKeys = (metaverse: Metaverse, keys: [string]) => {

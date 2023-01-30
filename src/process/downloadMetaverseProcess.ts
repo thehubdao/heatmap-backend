@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { getMetaverseCalcs } from '../controller/limitsController'
 import { Metaverse, metaverseObject } from '../../types/metaverse'
 import {
     metaverseUrl,
@@ -59,11 +58,12 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         sendParentMessage(ProcessMessages.newMetaverseChunk, landsFormatted)
 
         console.log(
-            'Response',
-            landChunkKeys.length,
             new Date(),
-            i,
-            landsChunkLimit
+            'RESPONSE',
+            `Land amount: ${landChunkKeys.length};`,
+            `Metaverse chunk limit ${landsChunkLimit};`,
+            `From ${i};`,
+            `To ${i + landsChunkLimit};`
         )
     } catch (error) {
         console.log(error)
@@ -137,7 +137,7 @@ const updateMetaverses = async () => {
         try {
             await requestMetaverseLands(metaverse)
             await setListings(metaverse)
-            sendParentMessage(ProcessMessages.setMetaverseCalcs,metaverse)
+            sendParentMessage(ProcessMessages.setMetaverseCalcs, metaverse)
         } catch (err) {
             console.log(err)
         }
