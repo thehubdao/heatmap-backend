@@ -31,7 +31,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         const landChunkKeys = Object.keys(landChunk)
 
         if (landChunkKeys.length < 1) return
-        const keyArray:any[] = []
+        const keyArray: any[] = []
         const landsFormatted = landChunkKeys.map((key: any) => {
             const land = landChunk[key]
             landChunk[key].tokenId = key
@@ -40,7 +40,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
             return { key, val: land }
         })
         const keyArrayKey = `${metaverse}-keys`
-        
+
         sendParentMessage(ProcessMessages.setBulkMetaverseKeys, {
             metaverse,
             keys: keyArray,
@@ -120,25 +120,30 @@ const updateMetaverses = async () => {
         try {
             await requestMetaverseLands(metaverse as Metaverse)
             const listings = await getListings(metaverse as Metaverse)
-            for (const listing of listings) {
-                let key = metaverse + listing.tokenId
-                sendParentMessage(ProcessMessages.getCacheKey, key)
-                const getLandPromise = new Promise<any>((resolve) => {
-                    process.once('message', ({ message, data }) => {
-                        if (message == ProcessMessages.sendCacheKey)
-                            resolve(data)
+            try {
+                for (const listing of listings) {
+                    let key = metaverse + listing.tokenId
+                    sendParentMessage(ProcessMessages.getCacheKey, key)
+                    const getLandPromise = new Promise<any>((resolve) => {
+                        process.once('message', ({ message, data }) => {
+                            if (message == ProcessMessages.sendCacheKey)
+                                resolve(data)
+                        })
                     })
-                })
-                const land = await getLandPromise
-                const { currentPrice } = listing
-                if (currentPrice)
-                    land.current_price_eth = currentPrice.eth_price
+                    const land = await getLandPromise
+                    const { currentPrice } = listing
+                    if (currentPrice)
+                        land.current_price_eth = currentPrice.eth_price
 
-                sendParentMessage(ProcessMessages.setCacheKey, {
-                    key,
-                    data: land,
-                })
+                    sendParentMessage(ProcessMessages.setCacheKey, {
+                        key,
+                        data: land,
+                    })
+                }
+            } catch (error) {
+                console.log(error)
             }
+
             const metaverseGeneralData = getMetaverseCalcs(
                 metaverse as Metaverse
             )
