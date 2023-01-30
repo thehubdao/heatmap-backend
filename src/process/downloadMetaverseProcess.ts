@@ -60,7 +60,7 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         console.log(
 /*             new Date(), */
             'RESPONSE',
-            `metaverse: ${metaverse}`,
+            `metaverse: ${metaverse};`,
             `land_amount: ${landChunkKeys.length};`,
             `metaverse_chunk_limit: ${landsChunkLimit};`,
             `from: ${i};`,
