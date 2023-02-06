@@ -11,9 +11,11 @@ export enum socketReceiverMessages {
     socketConnect = 'connection',
     socketDisconnect = 'disconnect',
     renderStart = 'render-start',
+    renderBulk = 'render-bulk-start',
     pong = 'pong',
     getLand = 'get-land',
     renderContinue = 'render-continue',
-    renderStop = 'render-stop'
+    renderStop = 'render-stop',
+
 }
 export type Controller = Record<string, (...args: any[]) => void>

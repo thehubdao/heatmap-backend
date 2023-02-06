@@ -52,16 +52,24 @@ const renderLands = async (
 export const rendernewLandBulkData = async (
     socket: Socket,
     metaverse: Metaverse,
-    landKeys: [string]
 ) => {
-    const landKeysLimit = 10
-    const startLandKeysIndex = 0
-    const limitedLandKeys = landKeys.slice(startLandKeysIndex, landKeysLimit)
-    const formattedLandKeys = limitedLandKeys.map(
-        (landKey) => metaverse + landKey
-    )
-    const lands = await getBulkKeys(formattedLandKeys)
-    socket.emit(socketSenderMessages.newBulkData, lands)
+    const keyLimit:number = 10
+    const landKeys: string[] = getMetaverseKeys(metaverse)
+    let startLandKeysIndex:number = 0
+    while (true) {
+        const limitedLandKeys = landKeys.slice(
+            startLandKeysIndex,
+            startLandKeysIndex + keyLimit
+        )
+        const lands = await getBulkKeys(limitedLandKeys)
+        socket.emit(socketSenderMessages.newBulkData, lands)
+        
+        if (startLandKeysIndex >= landKeys.length) 
+            return socket.emit(socketSenderMessages.renderFinish)
+            
+        
+        startLandKeysIndex += keyLimit
+    }
 }
 
 export const pingPong = (socket: any) => {

@@ -1,7 +1,15 @@
 import { Socket } from 'socket.io'
-import { clientDisconnect, renderStart } from '../../lib/socketService'
+import {
+    clientDisconnect,
+    rendernewLandBulkData,
+    renderStart,
+} from '../../lib/socketService'
 import { Metaverse } from '../../types/metaverse'
-import { Controller, socketReceiverMessages, socketSenderMessages } from '../../types/socket'
+import {
+    Controller,
+    socketReceiverMessages,
+    socketSenderMessages,
+} from '../../types/socket'
 
 export const socketMessagesController = (socket: Socket) => {
     return {
@@ -13,11 +21,14 @@ export const socketMessagesController = (socket: Socket) => {
         [socketReceiverMessages.renderStart]: async (metaverse: Metaverse) => {
             await renderStart(socket, metaverse)
         },
-/*         [socketReceiverMessages.getLand]: async (metaverse:Metaverse, index:number)=>{
+        /*         [socketReceiverMessages.getLand]: async (metaverse:Metaverse, index:number)=>{
             await giveLand(socket,metaverse,index)
         }, */
-        [socketReceiverMessages.renderContinue]:()=>{
-            
-        }
+        [socketReceiverMessages.renderContinue]: () => {},
+        [socketReceiverMessages.renderBulk]: async (
+            metaverse: Metaverse,
+        ) => {
+            await rendernewLandBulkData(socket, metaverse)
+        },
     } as Controller
 }
