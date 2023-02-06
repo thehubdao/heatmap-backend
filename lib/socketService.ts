@@ -53,7 +53,7 @@ export const rendernewLandBulkData = async (
     socket: Socket,
     metaverse: Metaverse,
 ) => {
-    const keyLimit:number = 10
+    const keyLimit:number = 100
     const landKeys: string[] = getMetaverseKeys(metaverse)
     let startLandKeysIndex:number = 0
     while (true) {
@@ -63,7 +63,7 @@ export const rendernewLandBulkData = async (
         )
         const lands = await getBulkKeys(limitedLandKeys)
         socket.emit(socketSenderMessages.newBulkData, lands)
-        
+
         if (startLandKeysIndex >= landKeys.length) 
             return socket.emit(socketSenderMessages.renderFinish)
             
