@@ -40,12 +40,7 @@ const updateStats = async (metaverse: Metaverse) => {
     const monthData: number[] = Object.values(statsData!.history)
     const monthsCalls = monthData.map((month: any) => month.month_calls)
     const statsGlobalData: any = calculateStats(monthsCalls)
-
-    console.log(statsGlobalData)
-
     statsGlobalData.current_month_calls = statsData!.history[currentMonth].month_calls
-
-    console.log(statsGlobalData)
 
     await statsDoc.update(statsGlobalData)
 
