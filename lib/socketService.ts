@@ -2,11 +2,13 @@ import { Socket } from 'socket.io'
 import { Metaverse } from '../types/metaverse'
 import { socketReceiverMessages, socketSenderMessages } from '../types/socket'
 import { getBulkKeys, getKey } from './cacheService'
+import { updateStats } from './firebaseService'
 import { getMetaverseKeys } from './utils/metaverseService'
 
 export const renderStart = async (socket: Socket, metaverse: Metaverse) => {
-    console.log('render-start', metaverse)
     const metaverseKeys = getMetaverseKeys(metaverse) as [string]
+    console.log('render-start', metaverse)
+    updateStats(metaverse)
     await renderLands(socket, metaverse, metaverseKeys)
 }
 
@@ -53,9 +55,9 @@ export const rendernewLandBulkData = async (
     socket: Socket,
     metaverse: Metaverse,
 ) => {
-    const keyLimit:number = 100
+    const keyLimit: number = 100
     const landKeys: string[] = getMetaverseKeys(metaverse)
-    let startLandKeysIndex:number = 0
+    let startLandKeysIndex: number = 0
     while (true) {
         const limitedLandKeys = landKeys.slice(
             startLandKeysIndex,
@@ -64,10 +66,10 @@ export const rendernewLandBulkData = async (
         const lands = await getBulkKeys(limitedLandKeys)
         socket.emit(socketSenderMessages.newBulkData, lands)
 
-        if (startLandKeysIndex >= landKeys.length) 
+        if (startLandKeysIndex >= landKeys.length)
             return socket.emit(socketSenderMessages.renderFinish)
-            
-        
+
+
         startLandKeysIndex += keyLimit
     }
 }
