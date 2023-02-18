@@ -153,6 +153,7 @@ export const getGeneralData = (
         elementOptions[key] = {
             max: getMax(predictions),
             limits: getLimits(predictions),
+            landAmount: typedKeys(valuationAtlas).length
         }
     })
     return elementOptions
