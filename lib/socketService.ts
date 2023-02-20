@@ -9,7 +9,7 @@ export const renderStart = async (socket: Socket, metaverse: Metaverse) => {
     const metaverseKeys = getMetaverseKeys(metaverse) as [string]
     console.log('render-start', metaverse)
     updateStats(metaverse)
-    await renderLands(socket, metaverse, metaverseKeys)
+    await renderLands(socket, metaverseKeys)
 }
 
 export const renderContinue = async (
@@ -18,16 +18,16 @@ export const renderContinue = async (
     keyIndex: number
 ) => {
     const metaverseKeys = getMetaverseKeys(metaverse)
+    console.log('render-continue', metaverse)
     const metaverseLeftKeys = metaverseKeys.slice(
         keyIndex,
         metaverseKeys.length
     ) as [string]
-    await renderLands(socket, metaverse, metaverseLeftKeys)
+    await renderLands(socket, metaverseLeftKeys)
 }
 
 const renderLands = async (
     socket: Socket,
-    metaverse: Metaverse,
     landKeys: [string]
 ) => {
     for (const keyIndex in landKeys) {

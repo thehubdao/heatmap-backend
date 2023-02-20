@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io'
 import {
     clientDisconnect,
+    renderContinue,
     rendernewLandBulkData,
     renderStart,
 } from '../../lib/socketService'
@@ -24,7 +25,9 @@ export const socketMessagesController = (socket: Socket) => {
         /*         [socketReceiverMessages.getLand]: async (metaverse:Metaverse, index:number)=>{
             await giveLand(socket,metaverse,index)
         }, */
-        [socketReceiverMessages.renderContinue]: () => {},
+        [socketReceiverMessages.renderContinue]: async (metaverse: Metaverse, keyIndex:number) => {
+            await renderContinue(socket,metaverse,keyIndex)
+        },
         [socketReceiverMessages.renderBulk]: async (
             metaverse: Metaverse,
         ) => {
