@@ -40,7 +40,7 @@ server.listen(port, () => {
 
 app.get('/limits', getLimitsController)
 
-const child = fork('./src/process/downloadMetaverseProcess.ts')
+const child = fork('./src/process/downloadMetaverseProcess.ts', { detached: true })
 
 const processMessages: any = {
     [ProcessMessages.newMetaverseChunk](chunk: any) {
@@ -56,7 +56,7 @@ const processMessages: any = {
     [ProcessMessages.setBulkMetaverseKeys]({ metaverse, keys }: any) {
         setBulkMetaverseKeys(metaverse, keys)
     },
-    [ProcessMessages.setMetaverseCalcs](metaverse:Metaverse){
+    [ProcessMessages.setMetaverseCalcs](metaverse: Metaverse) {
         setMetaverseCalcs(metaverse)
     }
 }
