@@ -11,6 +11,7 @@ import { ProcessMessages } from './types/process'
 import { config } from 'dotenv'
 import { setBulkMetaverseKeys } from './lib/utils/metaverseService'
 import { Metaverse } from './types/metaverse'
+import { join } from 'path'
 
 config()
 
@@ -40,7 +41,9 @@ server.listen(port, () => {
 
 app.get('/limits', getLimitsController)
 
-const child = fork('./src/process/downloadMetaverseProcess.ts')
+const child = fork(
+    join(__dirname, '/src/process/downloadMetaverseProcess'), ['-r', 'ts-node/register']
+    )
 
 const processMessages: any = {
     [ProcessMessages.newMetaverseChunk](chunk: any) {
