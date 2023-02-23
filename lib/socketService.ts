@@ -4,13 +4,12 @@ import { socketReceiverMessages, socketSenderMessages } from '../types/socket'
 import { getBulkKeys, getKey } from './cacheService'
 import { updateStats } from './firebaseService'
 import { getMetaverseKeys } from './utils/metaverseService'
-import { readFileSync } from 'fs'
 
 export const renderStart = async (socket: Socket, metaverse: Metaverse) => {
-    const metaverseLands = JSON.parse(readFileSync(`data/${metaverse}.json`, {encoding:"utf8"}))
+    const metaverseKeys = getMetaverseKeys(metaverse) as [string]
     console.log('render-start', metaverse)
     updateStats(metaverse)
-    await renderLands(socket, metaverseLands)
+    await renderLands(socket, metaverseKeys)
 }
 
 export const renderContinue = async (
@@ -18,22 +17,22 @@ export const renderContinue = async (
     metaverse: Metaverse,
     keyIndex: number
 ) => {
-    const metaverseLands = JSON.parse(readFileSync(`data/${metaverse}.json`, {encoding:"utf8"}))
+    const metaverseKeys = getMetaverseKeys(metaverse)
     console.log('render-continue', metaverse)
-    const metaverseLeftLands = metaverseLands.slice(
+    const metaverseLeftKeys = metaverseKeys.slice(
         keyIndex,
-        metaverseLands.length
-    ) 
-    await renderLands(socket, metaverseLeftLands)
+        metaverseKeys.length
+    ) as [string]
+    await renderLands(socket, metaverseLeftKeys)
 }
 
 const renderLands = async (
     socket: Socket,
-    metaverseLands: any
+    landKeys: [string]
 ) => {
-    for (const landIndex in metaverseLands) {
-        const land = metaverseLands[landIndex]
-        socket.emit(socketSenderMessages.newLandData, land, landIndex)
+    for (const keyIndex in landKeys) {
+        const land = await getKey(landKeys[keyIndex])
+        socket.emit(socketSenderMessages.newLandData, land, keyIndex)
     }
     socket.emit(socketSenderMessages.renderFinish)
 }

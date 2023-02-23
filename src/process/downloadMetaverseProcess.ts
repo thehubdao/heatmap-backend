@@ -5,8 +5,6 @@ import {
     heatmapMvLandsPerRequest,
 } from '../../lib/utils/metaverseUtils'
 import { ProcessMessages } from '../../types/process'
-import { writeFileSync } from 'fs'
-import { getGeneralData } from '../controller/limitsController'
 
 const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
     try {
@@ -34,7 +32,33 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
 
         const landChunk = requestLandChunk.data
         const landChunkKeys = Object.keys(landChunk)
+
+        if (landChunkKeys.length < 1) {
+            console.log('Metaverse finish')
+            return false
+        }
+        const keyArray: any[] = []
+        const landsFormatted = landChunkKeys.map((key: any) => {
+            const land = landChunk[key]
+            landChunk[key].tokenId = key
+            key = metaverse + key //Each key has metaverse name concat
+            keyArray.push(key)
+            return { key, val: land }
+        })
+        const keyArrayKey = `${metaverse}-keys`
+
+        sendParentMessage(ProcessMessages.setBulkMetaverseKeys, {
+            metaverse,
+            keys: keyArray,
+        })
+        sendParentMessage(ProcessMessages.setCacheKey, {
+            key: keyArrayKey,
+            data: keyArray,
+        })
+        sendParentMessage(ProcessMessages.newMetaverseChunk, landsFormatted)
+
         console.log(
+            /*             new Date(), */
             'RESPONSE',
             `metaverse: ${metaverse};`,
             `land_amount: ${landChunkKeys.length};`,
@@ -42,28 +66,21 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
             `from: ${i};`,
             `to: ${i + landsChunkLimit};`
         )
-        return landChunk
     } catch (error) {
         console.log(error)
     }
 
+    return true
 }
 
 const requestMetaverseLands = async (metaverse: Metaverse) => {
     const chunkSize = heatmapMvLandsPerRequest[metaverse].lands
     let chunkIndex = 0
     let areLandsLeft = true
-    let metaverseLands = {}
-
     while (areLandsLeft) {
-        const landChunk = await requestMetaverseMap(chunkIndex, metaverse)
-        const landChunkKeys = Object.keys(landChunk).length
-        metaverseLands = { ...metaverseLands, ...landChunk }
-        areLandsLeft = landChunkKeys != 0
+        areLandsLeft = await requestMetaverseMap(chunkIndex, metaverse)
         chunkIndex += chunkSize
     }
-
-    return metaverseLands
 }
 
 const getListings = async (metaverse: Metaverse) => {
@@ -92,18 +109,28 @@ const getListings = async (metaverse: Metaverse) => {
     }
 }
 
-const setListings = async (metaverse: Metaverse, metaverseLands: any) => {
+const setListings = async (metaverse: Metaverse) => {
     const listings = await getListings(metaverse as Metaverse)
 
     for (const listing of listings) {
         try {
-            let key = listing.tokenId
-            const land = metaverseLands[key]
+            let key = metaverse + listing.tokenId
+            sendParentMessage(ProcessMessages.getCacheKey, key)
+            const getLandPromise = new Promise<any>((resolve) => {
+                process.once('message', ({ message, data }) => {
+                    if (message == ProcessMessages.sendCacheKey) resolve(data)
+                })
+            })
+            const land = await getLandPromise
             const { currentPrice } = listing
             if (currentPrice) land.current_price_eth = currentPrice.eth_price
-            metaverseLands[key] = land
-        } catch (err) {
-            console.log(err)
+
+            sendParentMessage(ProcessMessages.setCacheKey, {
+                key,
+                data: land,
+            })
+        } catch (error) {
+            console.log(error)
         }
     }
 }
@@ -112,12 +139,9 @@ const updateMetaverses = async () => {
     const metaverses: Metaverse[] = Object.keys(metaverseObject) as Metaverse[]
     for (const metaverse of metaverses) {
         try {
-            const metaverseLands = await requestMetaverseLands(metaverse)
-            await setListings(metaverse, metaverseLands)
-            const generalData = getGeneralData(metaverseLands)
-            writeFileSync(`data/${metaverse}.json`, JSON.stringify(metaverseLands))
-            writeFileSync(`data/${metaverse}GeneralData.json`, JSON.stringify(generalData))
-            console.log(metaverse + ': Metaverse download finish')
+            await requestMetaverseLands(metaverse)
+            await setListings(metaverse)
+            sendParentMessage(ProcessMessages.setMetaverseCalcs, metaverse)
         } catch (err) {
             console.log(err)
         }
@@ -134,3 +158,9 @@ process.on('message', async ({ message }: any) => {
     if (!messageHandler) return
     await messageHandler()
 })
+
+const sendParentMessage = (message: any, data?: any) => {
+    const moldableProcess = process as any
+    if (!moldableProcess) return
+    moldableProcess.send({ message, data })
+}
