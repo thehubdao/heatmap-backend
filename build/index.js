@@ -21,6 +21,7 @@ const socket_1 = require("./types/socket");
 const child_process_1 = require("child_process");
 const cacheService_1 = require("./lib/cacheService");
 const process_1 = require("./types/process");
+<<<<<<< HEAD
 const app = require('express')();
 const fs = require('fs');
 app.use((0, cors_1.default)());
@@ -35,6 +36,17 @@ const credentials = {
 const server = require('https').createServer(credentials, app);
 const Server = require('socket.io').Server;
 const port = process.env.PORT || 8080;
+=======
+const dotenv_1 = require("dotenv");
+const metaverseService_1 = require("./lib/utils/metaverseService");
+const path_1 = require("path");
+(0, dotenv_1.config)();
+const app = require('express')();
+app.use((0, cors_1.default)());
+const server = require('http').createServer(app);
+const Server = require('socket.io').Server;
+const port = process.env.PORT || 3005;
+>>>>>>> b17685ddef0654fb876ebccfcb7e21d4efb6a8be
 const io = new Server(server, {
     cors: {
         origin: '*',
@@ -52,7 +64,11 @@ server.listen(port, () => {
     console.log('Sockets listening on port: ' + port);
 });
 app.get('/limits', limitsController_1.getLimitsController);
+<<<<<<< HEAD
 const child = (0, child_process_1.fork)('./src/process/downloadMetaverseProcess.ts');
+=======
+const child = (0, child_process_1.fork)((0, path_1.join)(__dirname, '/src/process/downloadMetaverseProcess'), ['node --max-old-space-size=8192 build/index.js']);
+>>>>>>> b17685ddef0654fb876ebccfcb7e21d4efb6a8be
 const processMessages = {
     [process_1.ProcessMessages.newMetaverseChunk](chunk) {
         (0, cacheService_1.setBulkKeys)(chunk);
@@ -64,6 +80,15 @@ const processMessages = {
     [process_1.ProcessMessages.setCacheKey]({ key, data }) {
         (0, cacheService_1.setKey)(key, data);
     },
+<<<<<<< HEAD
+=======
+    [process_1.ProcessMessages.setBulkMetaverseKeys]({ metaverse, keys }) {
+        (0, metaverseService_1.setBulkMetaverseKeys)(metaverse, keys);
+    },
+    [process_1.ProcessMessages.setMetaverseCalcs](metaverse) {
+        (0, limitsController_1.setMetaverseCalcs)(metaverse);
+    }
+>>>>>>> b17685ddef0654fb876ebccfcb7e21d4efb6a8be
 };
 const sendChildMessage = (message, data) => {
     child.send({ message, data });
@@ -77,5 +102,14 @@ child.on('message', ({ message, data }) => __awaiter(void 0, void 0, void 0, fun
         return;
     yield messageHandler(data);
 }));
+<<<<<<< HEAD
 downloadStart();
 setInterval(downloadStart, 10000000);
+=======
+child.on('error', (err) => {
+    console.log(err, child.exitCode);
+    child.disconnect();
+});
+downloadStart();
+setInterval(downloadStart, 6000000);
+>>>>>>> b17685ddef0654fb876ebccfcb7e21d4efb6a8be
