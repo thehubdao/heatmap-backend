@@ -52,7 +52,7 @@ server.listen(port, () => {
 
 app.get('/limits', getLimitsController)
 
-const child = fork('./src/process/downloadMetaverseProcess.ts', { detached: true })
+const child = fork('./src/process/downloadMetaverseProcess.ts')
 
 const processMessages: any = {
     [ProcessMessages.newMetaverseChunk](chunk: any) {
