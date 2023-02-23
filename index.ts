@@ -75,5 +75,10 @@ child.on('message', async ({ message, data }: any) => {
     await messageHandler(data)
 })
 
+child.on('error', (err) => {
+    console.log(err, child.exitCode)
+    child.disconnect()
+})
+
 downloadStart()
 setInterval(downloadStart, 6000000)
