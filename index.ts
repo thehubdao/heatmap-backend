@@ -42,7 +42,7 @@ server.listen(port, () => {
 app.get('/limits', getLimitsController)
 
 const child = fork(
-    join(__dirname, '/src/process/downloadMetaverseProcess'), ['-r', 'ts-node/register']
+    join(__dirname, '/src/process/downloadMetaverseProcess')
     )
 
 const processMessages: any = {
