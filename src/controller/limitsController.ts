@@ -3,6 +3,7 @@ import { typedKeys } from '../utilities/typedKeys'
 import { Metaverse } from '../../types/metaverse'
 import { getMetaverseKeys } from '../../lib/utils/metaverseService'
 import { getBulkKeys, getKey, setKey } from '../../lib/cacheService'
+import { readFileSync } from 'fs'
 
 export const getMax = (array: (number | undefined)[]) => {
     let max = 0
@@ -171,5 +172,6 @@ export const setMetaverseCalcs = (metaverse: Metaverse) => {
 
 export const getLimitsController = async (req: any, res: any) => {
     const {metaverse} = req.query
-    return res.send(getKey(`${metaverse}-generalData`))
+    const metaverseGeneralData = JSON.parse(readFileSync(`data/${metaverse}GeneralData.json`, {encoding:"utf8"}))
+    return res.send(metaverseGeneralData)
 }

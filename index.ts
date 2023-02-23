@@ -88,4 +88,4 @@ child.on('message', async ({ message, data }: any) => {
 })
 
 downloadStart()
-setInterval(downloadStart, 10000000)
+setInterval(downloadStart, 60000)
