@@ -42,8 +42,8 @@ server.listen(port, () => {
 app.get('/limits', getLimitsController)
 
 const child = fork(
-    join(__dirname, '/src/process/downloadMetaverseProcess'), ['-r', 'ts-node/register']
-    )
+    join(__dirname, '/src/process/downloadMetaverseProcess'), ['node --max-old-space-size=8192 build/index.js']
+)
 
 const processMessages: any = {
     [ProcessMessages.newMetaverseChunk](chunk: any) {
