@@ -22,7 +22,6 @@ const child_process_1 = require("child_process");
 const cacheService_1 = require("./lib/cacheService");
 const process_1 = require("./types/process");
 const dotenv_1 = require("dotenv");
-const metaverseService_1 = require("./lib/utils/metaverseService");
 const path_1 = require("path");
 (0, dotenv_1.config)();
 const app = require('express')();
@@ -49,18 +48,16 @@ server.listen(port, () => {
 app.get('/limits', limitsController_1.getLimitsController);
 const child = (0, child_process_1.fork)((0, path_1.join)(__dirname, '/src/process/downloadMetaverseProcess'), ['node --max-old-space-size=8192 build/index.js']);
 const processMessages = {
-    [process_1.ProcessMessages.newMetaverseChunk](chunk) {
-        (0, cacheService_1.setBulkKeys)(chunk);
+    [process_1.ProcessMessages.newMetaverseChunk]({ chunk, metaverse }) {
+        (0, cacheService_1.setLands)(chunk, metaverse);
     },
-    [process_1.ProcessMessages.getCacheKey](key) {
-        const cacheValue = (0, cacheService_1.getKey)(key);
+    [process_1.ProcessMessages.getCacheKey]({ key, metaverse }) {
+        const cacheValue = (0, cacheService_1.getLand)(key, metaverse);
         sendChildMessage(process_1.ProcessMessages.sendCacheKey, cacheValue);
     },
-    [process_1.ProcessMessages.setCacheKey]({ key, data }) {
-        (0, cacheService_1.setKey)(key, data);
-    },
-    [process_1.ProcessMessages.setBulkMetaverseKeys]({ metaverse, keys }) {
-        (0, metaverseService_1.setBulkMetaverseKeys)(metaverse, keys);
+    [process_1.ProcessMessages.setCacheKey]({ land, metaverse }) {
+        console.log(land, metaverse);
+        (0, cacheService_1.setLand)(land, metaverse);
     },
     [process_1.ProcessMessages.setMetaverseCalcs](metaverse) {
         (0, limitsController_1.setMetaverseCalcs)(metaverse);

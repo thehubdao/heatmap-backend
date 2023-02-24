@@ -31,12 +31,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateStats = void 0;
 const dotenv_1 = require("dotenv");
 const admin = __importStar(require("firebase-admin"));
 (0, dotenv_1.config)();
-var serviceAccount = JSON.parse(process.env.FIREBASE_PRIVATE_KEY);
+var serviceAccount = {
+    "type": "service_account",
+    "project_id": process.env.FIREBASE_PROJECT_ID,
+    "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
+    "private_key": `${(_a = process.env.FIREBASE_PRIVATE_KEY) === null || _a === void 0 ? void 0 : _a.replace(/\\n/gm, "\n")}`,
+    "client_email": process.env.FIREBASE_CLIENT_EMAIL,
+    "client_id": process.env.FIREBASE_CLIENT_ID,
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": process.env.FIREBASE_CLIENT_CERT_URL
+};
 const firebaseInstance = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
