@@ -18,8 +18,8 @@ export const socketMessagesController = (socket: Socket) => {
         ) => {
             clientDisconnect(disconnectReason, socket)
         },
-        [socketReceiverMessages.renderStart]: async (metaverse: Metaverse) => {
-            await renderStart(socket, metaverse)
+        [socketReceiverMessages.renderStart]: async (metaverse: Metaverse, landIndex:number) => {
+            await renderStart(socket, metaverse,landIndex)
         },
         /*         [socketReceiverMessages.getLand]: async (metaverse:Metaverse, index:number)=>{
             await giveLand(socket,metaverse,index)
