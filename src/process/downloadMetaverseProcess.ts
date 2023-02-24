@@ -116,7 +116,6 @@ const setListings = async (metaverse: Metaverse) => {
                 land,
             })
         } catch (error) {
-            console.log(error)
         }
     }
 }
