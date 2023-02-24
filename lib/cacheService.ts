@@ -1,18 +1,26 @@
-const NodeCache = require('node-cache')
-const cache = new NodeCache()
+import { Metaverse } from "../types/metaverse"
 
-export const setKey = (key: string, value: any) => {
-    cache.set(key, value)
+const metaverses: Record<Metaverse, any> = {
+    "somnium-space": {},
+    decentraland: {},
+    sandbox: {}
 }
 
-export const setBulkKeys = (keys: []) => {
-    cache.mset(keys)
+export const setLand = (land: any, metaverse: Metaverse) => {
+    metaverses[metaverse][land.tokenId] = land
+    
 }
 
-export const getKey = (key: string) => {
-    return cache.get(key)
+export const setLands = (lands: any[], metaverse: Metaverse) => {
+    for (const land of lands) {
+        setLand(land, metaverse)
+    }
 }
 
-export const getBulkKeys = (keys: string[]) => {
-    return cache.mget(keys)
+export const getLand = (tokenId: string, metaverse: Metaverse) => {
+    return metaverses[metaverse][tokenId]
+}
+
+export const getMetaverse = (metaverse: Metaverse) => {
+    return metaverses[metaverse]
 }
