@@ -13,6 +13,7 @@ import { setBulkMetaverseKeys } from './lib/utils/metaverseService'
 import { Metaverse } from './types/metaverse'
 import { join } from 'path'
 
+let pidusage = require('pidusage');
 config()
 
 const app = require('express')()
@@ -57,11 +58,7 @@ const child = fork(
     join(__dirname, '/src/process/downloadMetaverseProcess'), ['node --max-old-space-size=8192 build/index.js']
 )
 
-pidusage(child.pid, function (err, stats) {
 
-    console.log(err,stats);
-    
-    });
 const processMessages: any = {
     [ProcessMessages.newMetaverseChunk]({ chunk, metaverse }: any) {
         setLands(chunk, metaverse)
@@ -88,6 +85,10 @@ const downloadStart = () => {
 }
 
 child.on('message', async ({ message, data }: any) => {
+    pidusage(child.pid, function (err:any, stats:any) {
+        console.log(message,err,stats, new Date().toISOString());
+        
+        });
     const messageHandler = processMessages[message]
     if (!messageHandler) return
     await messageHandler(data)
@@ -106,7 +107,4 @@ child.on('exit', (err) => {
 
 downloadStart()
 setInterval(downloadStart, 6000000)
-function pidusage(pid: number | undefined, arg1: (err: any, stats: any) => void) {
-    throw new Error('Function not implemented.')
-}
 
