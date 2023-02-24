@@ -2,7 +2,6 @@ import { Socket } from 'socket.io'
 import {
     clientDisconnect,
     renderContinue,
-    rendernewLandBulkData,
     renderStart,
 } from '../../lib/socketService'
 import { Metaverse } from '../../types/metaverse'
@@ -31,7 +30,7 @@ export const socketMessagesController = (socket: Socket) => {
         [socketReceiverMessages.renderBulk]: async (
             metaverse: Metaverse,
         ) => {
-            await rendernewLandBulkData(socket, metaverse)
+            /* await rendernewLandBulkData(socket, metaverse) */
         },
     } as Controller
 }

@@ -6,7 +6,7 @@ import { getLimitsController, setMetaverseCalcs } from './src/controller/limitsC
 import { clientConnect } from './lib/socketService'
 import { socketReceiverMessages } from './types/socket'
 import { fork } from 'child_process'
-import { getKey, setBulkKeys, setKey } from './lib/cacheService'
+import { getLand, setLands, setLand } from './lib/cacheService'
 import { ProcessMessages } from './types/process'
 import { config } from 'dotenv'
 import { setBulkMetaverseKeys } from './lib/utils/metaverseService'
@@ -46,18 +46,16 @@ const child = fork(
 )
 
 const processMessages: any = {
-    [ProcessMessages.newMetaverseChunk](chunk: any) {
-        setBulkKeys(chunk)
+    [ProcessMessages.newMetaverseChunk]({ chunk, metaverse }: any) {
+        setLands(chunk, metaverse)
     },
-    [ProcessMessages.getCacheKey](key: string) {
-        const cacheValue = getKey(key)
+    [ProcessMessages.getCacheKey]({ key, metaverse }: any) {
+        const cacheValue = getLand(key, metaverse)
         sendChildMessage(ProcessMessages.sendCacheKey, cacheValue)
     },
-    [ProcessMessages.setCacheKey]({ key, data }: any) {
-        setKey(key, data)
-    },
-    [ProcessMessages.setBulkMetaverseKeys]({ metaverse, keys }: any) {
-        setBulkMetaverseKeys(metaverse, keys)
+    [ProcessMessages.setCacheKey]({ land, metaverse }: any) {
+        console.log(land,metaverse)
+        setLand(land, metaverse)
     },
     [ProcessMessages.setMetaverseCalcs](metaverse: Metaverse) {
         setMetaverseCalcs(metaverse)
