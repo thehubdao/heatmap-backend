@@ -57,6 +57,11 @@ const child = fork(
     join(__dirname, '/src/process/downloadMetaverseProcess'), ['node --max-old-space-size=8192 build/index.js']
 )
 
+pidusage(child.pid, function (err, stats) {
+
+    console.log(err,stats);
+    
+    });
 const processMessages: any = {
     [ProcessMessages.newMetaverseChunk]({ chunk, metaverse }: any) {
         setLands(chunk, metaverse)
@@ -101,3 +106,7 @@ child.on('exit', (err) => {
 
 downloadStart()
 setInterval(downloadStart, 6000000)
+function pidusage(pid: number | undefined, arg1: (err: any, stats: any) => void) {
+    throw new Error('Function not implemented.')
+}
+
