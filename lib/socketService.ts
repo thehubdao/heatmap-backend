@@ -7,34 +7,18 @@ import { getMetaverseKeys } from './utils/metaverseService'
 
 export const renderStart = async (socket: Socket, metaverse: Metaverse, landIndex: number = 0) => {
     const metaverseLands = Object.values(getMetaverse(metaverse))
-    const metaverseLandsSlice = metaverseLands.slice(
-        landIndex,
-        metaverseLands.length
-    )
-    console.log('render-start', metaverse, landIndex, metaverseLandsSlice.length)
+    console.log('render-start', metaverse, landIndex, metaverseLands.length - landIndex)
     updateStats(metaverse)
-    await renderLands(socket, metaverseLandsSlice)
+    await renderLands(socket, metaverseLands, landIndex)
 }
 
-export const renderContinue = async (
-    socket: Socket,
-    metaverse: Metaverse,
-    keyIndex: number
-) => {
-    const metaverseLands = Object.values(getMetaverse(metaverse))
-    console.log('render-continue', metaverse, keyIndex)
-    const metaverseLeftLands = metaverseLands.slice(
-        keyIndex,
-        metaverseLands.length
-    )
-    await renderLands(socket, metaverseLeftLands)
-}
 
 const renderLands = async (
     socket: Socket,
-    lands: any[]
+    lands: any[],
+    landCurrentIndex: number
 ) => {
-    for (const landIndex in lands) {
+    for (let landIndex = landCurrentIndex; landIndex < lands.length; landIndex++) {
         socket.emit(socketSenderMessages.newLandData, lands[landIndex], landIndex)
     }
     socket.emit(socketSenderMessages.renderFinish)
