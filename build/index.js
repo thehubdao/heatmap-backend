@@ -21,7 +21,9 @@ const socket_1 = require("./types/socket");
 const child_process_1 = require("child_process");
 const cacheService_1 = require("./lib/cacheService");
 const process_1 = require("./types/process");
-<<<<<<< HEAD
+const dotenv_1 = require("dotenv");
+const path_1 = require("path");
+(0, dotenv_1.config)();
 const app = require('express')();
 const fs = require('fs');
 app.use((0, cors_1.default)());
@@ -35,17 +37,7 @@ const credentials = {
 };
 const server = require('https').createServer(credentials, app);
 const Server = require('socket.io').Server;
-const port = process.env.PORT || 8080;
-=======
-const dotenv_1 = require("dotenv");
-const path_1 = require("path");
-(0, dotenv_1.config)();
-const app = require('express')();
-app.use((0, cors_1.default)());
-const server = require('http').createServer(app);
-const Server = require('socket.io').Server;
 const port = process.env.PORT || 3005;
->>>>>>> b17685ddef0654fb876ebccfcb7e21d4efb6a8be
 const io = new Server(server, {
     cors: {
         origin: '*',
@@ -71,10 +63,6 @@ const processMessages = {
     [process_1.ProcessMessages.getCacheKey]({ key, metaverse }) {
         const cacheValue = (0, cacheService_1.getLand)(key, metaverse);
         sendChildMessage(process_1.ProcessMessages.sendCacheKey, cacheValue);
-    },
-
-    [process_1.ProcessMessages.setCacheKey]({ key, data }) {
-        (0, cacheService_1.setKey)(key, data);
     },
     [process_1.ProcessMessages.setCacheKey]({ land, metaverse }) {
         console.log(land, metaverse);
