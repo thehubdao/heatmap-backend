@@ -31,31 +31,18 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         }
 
         const landChunk = requestLandChunk.data
-        const landChunkKeys = Object.keys(landChunk)
+        const landChunkKeys = Object.keys(requestLandChunk.data)
 
         if (landChunkKeys.length < 1) {
             console.log('Metaverse finish')
             return false
         }
-        const keyArray: any[] = []
         const landsFormatted = landChunkKeys.map((key: any) => {
-            const land = landChunk[key]
-            landChunk[key].tokenId = key
-            key = metaverse + key //Each key has metaverse name concat
-            keyArray.push(key)
-            return { key, val: land }
+            const land: any = landChunk[key]
+            land.tokenId = key
+            return land
         })
-        const keyArrayKey = `${metaverse}-keys`
-
-        sendParentMessage(ProcessMessages.setBulkMetaverseKeys, {
-            metaverse,
-            keys: keyArray,
-        })
-        sendParentMessage(ProcessMessages.setCacheKey, {
-            key: keyArrayKey,
-            data: keyArray,
-        })
-        sendParentMessage(ProcessMessages.newMetaverseChunk, landsFormatted)
+        sendParentMessage(ProcessMessages.newMetaverseChunk, { metaverse, chunk: landsFormatted })
 
         console.log(
             /*             new Date(), */
@@ -111,11 +98,10 @@ const getListings = async (metaverse: Metaverse) => {
 
 const setListings = async (metaverse: Metaverse) => {
     const listings = await getListings(metaverse as Metaverse)
-
     for (const listing of listings) {
         try {
-            let key = metaverse + listing.tokenId
-            sendParentMessage(ProcessMessages.getCacheKey, key)
+            let { tokenId } = listing
+            sendParentMessage(ProcessMessages.getCacheKey, { tokenId, metaverse })
             const getLandPromise = new Promise<any>((resolve) => {
                 process.once('message', ({ message, data }) => {
                     if (message == ProcessMessages.sendCacheKey) resolve(data)
@@ -126,8 +112,8 @@ const setListings = async (metaverse: Metaverse) => {
             if (currentPrice) land.current_price_eth = currentPrice.eth_price
 
             sendParentMessage(ProcessMessages.setCacheKey, {
-                key,
-                data: land,
+                metaverse,
+                land,
             })
         } catch (error) {
             console.log(error)

@@ -1,15 +1,15 @@
 import { Socket } from 'socket.io'
 import { Metaverse } from '../types/metaverse'
 import { socketReceiverMessages, socketSenderMessages } from '../types/socket'
-import { getBulkKeys, getKey } from './cacheService'
+import { getMetaverse, getLand } from './cacheService'
 import { updateStats } from './firebaseService'
 import { getMetaverseKeys } from './utils/metaverseService'
 
 export const renderStart = async (socket: Socket, metaverse: Metaverse) => {
-    const metaverseKeys = getMetaverseKeys(metaverse) as [string]
+    const metaverseLands = Object.values(getMetaverse(metaverse))
     console.log('render-start', metaverse)
     updateStats(metaverse)
-    await renderLands(socket, metaverseKeys)
+    await renderLands(socket, metaverseLands)
 }
 
 export const renderContinue = async (
@@ -28,11 +28,10 @@ export const renderContinue = async (
 
 const renderLands = async (
     socket: Socket,
-    landKeys: [string]
+    lands: any[]
 ) => {
-    for (const keyIndex in landKeys) {
-        const land = await getKey(landKeys[keyIndex])
-        socket.emit(socketSenderMessages.newLandData, land, keyIndex)
+    for (const landIndex in lands) {
+        socket.emit(socketSenderMessages.newLandData, lands[landIndex], landIndex)
     }
     socket.emit(socketSenderMessages.renderFinish)
 }
@@ -51,7 +50,7 @@ const renderLands = async (
     socket.emit(socketSenderMessages.giveLand, land, prevIndex, nextIndex)
 } */
 
-export const rendernewLandBulkData = async (
+/* export const rendernewLandBulkData = async (
     socket: Socket,
     metaverse: Metaverse,
 ) => {
@@ -72,7 +71,7 @@ export const rendernewLandBulkData = async (
 
         startLandKeysIndex += keyLimit
     }
-}
+} */
 
 export const pingPong = (socket: any) => {
     const pingInterval = 5000,
