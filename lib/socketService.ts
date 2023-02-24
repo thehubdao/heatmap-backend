@@ -24,43 +24,6 @@ const renderLands = async (
     socket.emit(socketSenderMessages.renderFinish)
 }
 
-/* export const giveLand = async (
-    socket: Socket,
-    metaverse: Metaverse,
-    index: number
-) => {
-    const land = await getKey(getLandKey(metaverse, index))
-    let prevIndex: number | null = index - 1
-    let nextIndex: number | null = index + 1
-    if (prevIndex < 0) prevIndex = null
-    if (nextIndex >= metaverseKeyTotalAmount(metaverse)) nextIndex = null
-
-    socket.emit(socketSenderMessages.giveLand, land, prevIndex, nextIndex)
-} */
-
-/* export const rendernewLandBulkData = async (
-    socket: Socket,
-    metaverse: Metaverse,
-) => {
-    const keyLimit: number = 100
-    const landKeys: string[] = getMetaverseKeys(metaverse)
-    let startLandKeysIndex: number = 0
-    while (true) {
-        const limitedLandKeys = landKeys.slice(
-            startLandKeysIndex,
-            startLandKeysIndex + keyLimit
-        )
-        const lands = await getBulkKeys(limitedLandKeys)
-        socket.emit(socketSenderMessages.newBulkData, lands)
-
-        if (startLandKeysIndex >= landKeys.length)
-            return socket.emit(socketSenderMessages.renderFinish)
-
-
-        startLandKeysIndex += keyLimit
-    }
-} */
-
 export const pingPong = (socket: any) => {
     const pingInterval = 5000,
         pongInterval = 10000
