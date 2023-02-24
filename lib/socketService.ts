@@ -7,75 +7,22 @@ import { getMetaverseKeys } from './utils/metaverseService'
 
 export const renderStart = async (socket: Socket, metaverse: Metaverse, landIndex: number = 0) => {
     const metaverseLands = Object.values(getMetaverse(metaverse))
-    const metaverseLandsSlice = metaverseLands.slice(
-        landIndex,
-        metaverseLands.length
-    )
-    console.log('render-start', metaverse, landIndex, metaverseLandsSlice.length)
+    console.log('render-start', metaverse, landIndex, metaverseLands.length - landIndex)
     updateStats(metaverse)
-    await renderLands(socket, metaverseLandsSlice)
+    await renderLands(socket, metaverseLands, landIndex)
 }
 
-export const renderContinue = async (
-    socket: Socket,
-    metaverse: Metaverse,
-    keyIndex: number
-) => {
-    const metaverseLands = Object.values(getMetaverse(metaverse))
-    console.log('render-continue', metaverse, keyIndex)
-    const metaverseLeftLands = metaverseLands.slice(
-        keyIndex,
-        metaverseLands.length
-    )
-    await renderLands(socket, metaverseLeftLands)
-}
 
 const renderLands = async (
     socket: Socket,
-    lands: any[]
+    lands: any[],
+    landCurrentIndex: number
 ) => {
-    for (const landIndex in lands) {
+    for (let landIndex = landCurrentIndex; landIndex < lands.length; landIndex++) {
         socket.emit(socketSenderMessages.newLandData, lands[landIndex], landIndex)
     }
     socket.emit(socketSenderMessages.renderFinish)
 }
-
-/* export const giveLand = async (
-    socket: Socket,
-    metaverse: Metaverse,
-    index: number
-) => {
-    const land = await getKey(getLandKey(metaverse, index))
-    let prevIndex: number | null = index - 1
-    let nextIndex: number | null = index + 1
-    if (prevIndex < 0) prevIndex = null
-    if (nextIndex >= metaverseKeyTotalAmount(metaverse)) nextIndex = null
-
-    socket.emit(socketSenderMessages.giveLand, land, prevIndex, nextIndex)
-} */
-
-/* export const rendernewLandBulkData = async (
-    socket: Socket,
-    metaverse: Metaverse,
-) => {
-    const keyLimit: number = 100
-    const landKeys: string[] = getMetaverseKeys(metaverse)
-    let startLandKeysIndex: number = 0
-    while (true) {
-        const limitedLandKeys = landKeys.slice(
-            startLandKeysIndex,
-            startLandKeysIndex + keyLimit
-        )
-        const lands = await getBulkKeys(limitedLandKeys)
-        socket.emit(socketSenderMessages.newBulkData, lands)
-
-        if (startLandKeysIndex >= landKeys.length)
-            return socket.emit(socketSenderMessages.renderFinish)
-
-
-        startLandKeysIndex += keyLimit
-    }
-} */
 
 export const pingPong = (socket: any) => {
     const pingInterval = 5000,
