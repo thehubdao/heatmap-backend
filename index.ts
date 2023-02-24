@@ -93,5 +93,11 @@ child.on('error', (err) => {
     child.disconnect()
 })
 
+child.on('exit', (err) => {
+    console.log(err, child.exitCode)
+    child.disconnect()
+})
+
+
 downloadStart()
 setInterval(downloadStart, 6000000)
