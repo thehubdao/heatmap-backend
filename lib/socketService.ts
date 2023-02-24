@@ -5,11 +5,15 @@ import { getMetaverse, getLand } from './cacheService'
 import { updateStats } from './firebaseService'
 import { getMetaverseKeys } from './utils/metaverseService'
 
-export const renderStart = async (socket: Socket, metaverse: Metaverse) => {
+export const renderStart = async (socket: Socket, metaverse: Metaverse, landIndex: number = 0) => {
     const metaverseLands = Object.values(getMetaverse(metaverse))
-    console.log('render-start', metaverse)
+    const metaverseLandsSlice = metaverseLands.slice(
+        landIndex,
+        metaverseLands.length
+    )
+    console.log('render-start', metaverse, landIndex, metaverseLandsSlice.length)
     updateStats(metaverse)
-    await renderLands(socket, metaverseLands)
+    await renderLands(socket, metaverseLandsSlice)
 }
 
 export const renderContinue = async (
@@ -17,13 +21,13 @@ export const renderContinue = async (
     metaverse: Metaverse,
     keyIndex: number
 ) => {
-    const metaverseKeys = getMetaverseKeys(metaverse)
-    console.log('render-continue', metaverse)
-    const metaverseLeftKeys = metaverseKeys.slice(
+    const metaverseLands = Object.values(getMetaverse(metaverse))
+    console.log('render-continue', metaverse, keyIndex)
+    const metaverseLeftLands = metaverseLands.slice(
         keyIndex,
-        metaverseKeys.length
-    ) as [string]
-    await renderLands(socket, metaverseLeftKeys)
+        metaverseLands.length
+    )
+    await renderLands(socket, metaverseLeftLands)
 }
 
 const renderLands = async (
