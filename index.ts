@@ -11,7 +11,7 @@ import { ProcessMessages } from './types/process'
 import { config } from 'dotenv'
 import { setBulkMetaverseKeys } from './lib/utils/metaverseService'
 import { Metaverse } from './types/metaverse'
-
+let pidusage = require('pidusage');
 config()
 
 const app = require('express')()
@@ -42,6 +42,8 @@ app.get('/limits', getLimitsController)
 
 const child = fork('./src/process/downloadMetaverseProcess.ts', { detached: true })
 
+
+
 const processMessages: any = {
     [ProcessMessages.newMetaverseChunk]({ chunk, metaverse }: any) {
         setLands(chunk, metaverse)
@@ -68,6 +70,10 @@ const downloadStart = () => {
 }
 
 child.on('message', async ({ message, data }: any) => {
+    pidusage(child.pid, function (err:any, stats:any) {
+        console.log(message,err,stats, new Date().toISOString());
+        
+        });
     const messageHandler = processMessages[message]
     if (!messageHandler) return
     await messageHandler(data)

@@ -36,6 +36,7 @@
         "nopt": "^1.0.10",
         "normalize-path": "^3.0.0",
         "picomatch": "^2.3.1",
+        "pidusage": "^3.0.2",
         "readdirp": "^3.6.0",
         "redis": "^4.5.0",
         "socket.io": "^4.5.2",
