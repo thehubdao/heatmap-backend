@@ -23,6 +23,7 @@ const cacheService_1 = require("./lib/cacheService");
 const process_1 = require("./types/process");
 const dotenv_1 = require("dotenv");
 const path_1 = require("path");
+let pidusage = require('pidusage');
 (0, dotenv_1.config)();
 const app = require('express')();
 const fs = require('fs');
@@ -79,12 +80,19 @@ const downloadStart = () => {
     sendChildMessage(process_1.ProcessMessages.downloadStart);
 };
 child.on('message', ({ message, data }) => __awaiter(void 0, void 0, void 0, function* () {
+    pidusage(child.pid, function (err, stats) {
+        console.log(message, err, stats, new Date().toISOString());
+    });
     const messageHandler = processMessages[message];
     if (!messageHandler)
         return;
     yield messageHandler(data);
 }));
 child.on('error', (err) => {
+    console.log(err, child.exitCode);
+    child.disconnect();
+});
+child.on('exit', (err) => {
     console.log(err, child.exitCode);
     child.disconnect();
 });
