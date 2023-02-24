@@ -1,21 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBulkKeys = exports.getKey = exports.setBulkKeys = exports.setKey = void 0;
-const NodeCache = require('node-cache');
-const cache = new NodeCache();
-const setKey = (key, value) => {
-    cache.set(key, value);
+exports.getMetaverse = exports.getLand = exports.setLands = exports.setLand = void 0;
+const metaverses = {
+    "somnium-space": {},
+    decentraland: {},
+    sandbox: {}
 };
-exports.setKey = setKey;
-const setBulkKeys = (keys) => {
-    cache.mset(keys);
+const setLand = (land, metaverse) => {
+    metaverses[metaverse][land.tokenId] = land;
 };
-exports.setBulkKeys = setBulkKeys;
-const getKey = (key) => {
-    return cache.get(key);
+exports.setLand = setLand;
+const setLands = (lands, metaverse) => {
+    for (const land of lands) {
+        (0, exports.setLand)(land, metaverse);
+    }
 };
-exports.getKey = getKey;
-const getBulkKeys = (keys) => {
-    return cache.mget(keys);
+exports.setLands = setLands;
+const getLand = (tokenId, metaverse) => {
+    return metaverses[metaverse][tokenId];
 };
-exports.getBulkKeys = getBulkKeys;
+exports.getLand = getLand;
+const getMetaverse = (metaverse) => {
+    return metaverses[metaverse];
+};
+exports.getMetaverse = getMetaverse;

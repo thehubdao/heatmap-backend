@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLimitsController = exports.setMetaverseCalcs = exports.getMetaverseCalcs = exports.getGeneralData = exports.getPercentage = exports.getLimits = exports.getMax = void 0;
 const typedKeys_1 = require("../utilities/typedKeys");
-const metaverseService_1 = require("../../lib/utils/metaverseService");
 const cacheService_1 = require("../../lib/cacheService");
 const getMax = (array) => {
     let max = 0;
@@ -131,18 +130,17 @@ const getGeneralData = (valuationAtlas) => {
 };
 exports.getGeneralData = getGeneralData;
 const getMetaverseCalcs = (metaverse) => {
-    const metaverseKeys = (0, metaverseService_1.getMetaverseKeys)(metaverse);
-    const lands = (0, cacheService_1.getBulkKeys)(metaverseKeys);
+    const lands = (0, cacheService_1.getMetaverse)(metaverse);
     return (0, exports.getGeneralData)(lands);
 };
 exports.getMetaverseCalcs = getMetaverseCalcs;
 const setMetaverseCalcs = (metaverse) => {
     const metaverseGeneralData = (0, exports.getMetaverseCalcs)(metaverse);
-    (0, cacheService_1.setKey)(`${metaverse}-generalData`, metaverseGeneralData);
+    /* setLand(`${metaverse}-generalData`, metaverseGeneralData) */ 
 };
 exports.setMetaverseCalcs = setMetaverseCalcs;
 const getLimitsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { metaverse } = req.query;
-    return res.send((0, cacheService_1.getKey)(`${metaverse}-generalData`));
+    return res.send({});
 });
 exports.getLimitsController = getLimitsController;

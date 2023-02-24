@@ -27,7 +27,7 @@ const socketMessagesController = (socket) => {
             yield (0, socketService_1.renderContinue)(socket, metaverse, keyIndex);
         }),
         [socket_1.socketReceiverMessages.renderBulk]: (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, socketService_1.rendernewLandBulkData)(socket, metaverse);
+            /* await rendernewLandBulkData(socket, metaverse) */
         }),
     };
 };

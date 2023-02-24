@@ -38,29 +38,17 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
             });
         }
         const landChunk = requestLandChunk.data;
-        const landChunkKeys = Object.keys(landChunk);
+        const landChunkKeys = Object.keys(requestLandChunk.data);
         if (landChunkKeys.length < 1) {
             console.log('Metaverse finish');
             return false;
         }
-        const keyArray = [];
         const landsFormatted = landChunkKeys.map((key) => {
             const land = landChunk[key];
-            landChunk[key].tokenId = key;
-            key = metaverse + key; //Each key has metaverse name concat
-            keyArray.push(key);
-            return { key, val: land };
+            land.tokenId = key;
+            return land;
         });
-        const keyArrayKey = `${metaverse}-keys`;
-        sendParentMessage(process_1.ProcessMessages.setBulkMetaverseKeys, {
-            metaverse,
-            keys: keyArray,
-        });
-        sendParentMessage(process_1.ProcessMessages.setCacheKey, {
-            key: keyArrayKey,
-            data: keyArray,
-        });
-        sendParentMessage(process_1.ProcessMessages.newMetaverseChunk, landsFormatted);
+        sendParentMessage(process_1.ProcessMessages.newMetaverseChunk, { metaverse, chunk: landsFormatted });
         console.log(
         /*             new Date(), */
         'RESPONSE', `metaverse: ${metaverse};`, `land_amount: ${landChunkKeys.length};`, `metaverse_chunk_limit: ${landsChunkLimit};`, `from: ${i};`, `to: ${i + landsChunkLimit};`);
@@ -106,8 +94,8 @@ const setListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
     const listings = yield getListings(metaverse);
     for (const listing of listings) {
         try {
-            let key = metaverse + listing.tokenId;
-            sendParentMessage(process_1.ProcessMessages.getCacheKey, key);
+            let { tokenId } = listing;
+            sendParentMessage(process_1.ProcessMessages.getCacheKey, { tokenId, metaverse });
             const getLandPromise = new Promise((resolve) => {
                 process.once('message', ({ message, data }) => {
                     if (message == process_1.ProcessMessages.sendCacheKey)
@@ -119,8 +107,8 @@ const setListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
             if (currentPrice)
                 land.current_price_eth = currentPrice.eth_price;
             sendParentMessage(process_1.ProcessMessages.setCacheKey, {
-                key,
-                data: land,
+                metaverse,
+                land,
             });
         }
         catch (error) {
