@@ -80,9 +80,10 @@ const downloadStart = () => {
     sendChildMessage(process_1.ProcessMessages.downloadStart);
 };
 child.on('message', ({ message, data }) => __awaiter(void 0, void 0, void 0, function* () {
-    pidusage(child.pid, function (err, stats) {
-        console.log(message, err, stats, new Date().toISOString());
-    });
+    /* pidusage(child.pid, function (err:any, stats:any) {
+        console.log(message,err,stats, new Date().toISOString());
+        
+        }); */
     const messageHandler = processMessages[message];
     if (!messageHandler)
         return;
