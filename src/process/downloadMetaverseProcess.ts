@@ -76,9 +76,9 @@ const getListings = async (metaverse: Metaverse) => {
         process.env.OPENSEA_SERVICE_URL +
         `/opensea/collections/${metaverse}/listings`
     let listings: Array<any> = []
+    try {
+        for (let i = 0; ; i += landsChunkLimit) {
 
-    for (let i = 0; ; i += landsChunkLimit) {
-        try {
             const listingRequestUrl = `${listingUrl}?from=${i}&size=${landsChunkLimit}`
             const listingsRequest = await axios.get(listingRequestUrl, {
                 headers: {
@@ -90,10 +90,13 @@ const getListings = async (metaverse: Metaverse) => {
             if (listingsChunk.length == 0) return listings
 
             listings = listings.concat(listingsChunk)
-        } catch (err) {
-            console.log(err)
+
         }
+    } catch (err) {
+        console.log(err)
     }
+    return []
+
 }
 
 const setListings = async (metaverse: Metaverse) => {
