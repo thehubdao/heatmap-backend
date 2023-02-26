@@ -72,8 +72,8 @@ const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
     const listingUrl = process.env.OPENSEA_SERVICE_URL +
         `/opensea/collections/${metaverse}/listings`;
     let listings = [];
-    for (let i = 0;; i += landsChunkLimit) {
-        try {
+    try {
+        for (let i = 0;; i += landsChunkLimit) {
             const listingRequestUrl = `${listingUrl}?from=${i}&size=${landsChunkLimit}`;
             const listingsRequest = yield axios_1.default.get(listingRequestUrl, {
                 headers: {
@@ -85,10 +85,11 @@ const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
                 return listings;
             listings = listings.concat(listingsChunk);
         }
-        catch (err) {
-            console.log(err);
-        }
     }
+    catch (err) {
+        console.log(err);
+    }
+    return [];
 });
 const setListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     const listings = yield getListings(metaverse);
