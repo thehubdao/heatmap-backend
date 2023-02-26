@@ -88,8 +88,8 @@ const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
     }
     catch (err) {
         console.log(err);
+        return [];
     }
-    return [];
 });
 const setListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     const listings = yield getListings(metaverse);

@@ -94,8 +94,9 @@ const getListings = async (metaverse: Metaverse) => {
         }
     } catch (err) {
         console.log(err)
+        return []
     }
-    return []
+    
 
 }
 
