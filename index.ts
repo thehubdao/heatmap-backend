@@ -48,8 +48,8 @@ const processMessages: any = {
     [ProcessMessages.newMetaverseChunk]({ chunk, metaverse }: any) {
         setLands(chunk, metaverse)
     },
-    [ProcessMessages.getCacheKey]({ key, metaverse }: any) {
-        const cacheValue = getLand(key, metaverse)
+    [ProcessMessages.getCacheKey]({ tokenId, metaverse }: any) {
+        const cacheValue = getLand(tokenId, metaverse)
         sendChildMessage(ProcessMessages.sendCacheKey, cacheValue)
     },
     [ProcessMessages.setCacheKey]({ land, metaverse }: any) {
@@ -91,4 +91,4 @@ child.on('exit', (err) => {
 
 
 downloadStart()
-setInterval(downloadStart, 10000000)
+setInterval(downloadStart, 600000)
