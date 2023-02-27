@@ -66,7 +66,6 @@ const processMessages = {
         sendChildMessage(process_1.ProcessMessages.sendCacheKey, cacheValue);
     },
     [process_1.ProcessMessages.setCacheKey]({ land, metaverse }) {
-        console.log(land, metaverse);
         (0, cacheService_1.setLand)(land, metaverse);
     },
     [process_1.ProcessMessages.setMetaverseCalcs](metaverse) {
