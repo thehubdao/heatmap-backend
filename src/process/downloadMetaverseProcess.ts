@@ -115,7 +115,6 @@ const setListings = async (metaverse: Metaverse) => {
             const land = await getLandPromise
             const { currentPrice } = listing
             if (currentPrice) land.current_price_eth = currentPrice.eth_price
-            console.log(land)
             sendParentMessage(ProcessMessages.setCacheKey, {
                 metaverse,
                 land,

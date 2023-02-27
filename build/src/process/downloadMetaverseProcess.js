@@ -108,7 +108,6 @@ const setListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
             const { currentPrice } = listing;
             if (currentPrice)
                 land.current_price_eth = currentPrice.eth_price;
-            console.log(land);
             sendParentMessage(process_1.ProcessMessages.setCacheKey, {
                 metaverse,
                 land,

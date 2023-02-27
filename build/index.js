@@ -61,8 +61,8 @@ const processMessages = {
     [process_1.ProcessMessages.newMetaverseChunk]({ chunk, metaverse }) {
         (0, cacheService_1.setLands)(chunk, metaverse);
     },
-    [process_1.ProcessMessages.getCacheKey]({ key, metaverse }) {
-        const cacheValue = (0, cacheService_1.getLand)(key, metaverse);
+    [process_1.ProcessMessages.getCacheKey]({ tokenId, metaverse }) {
+        const cacheValue = (0, cacheService_1.getLand)(tokenId, metaverse);
         sendChildMessage(process_1.ProcessMessages.sendCacheKey, cacheValue);
     },
     [process_1.ProcessMessages.setCacheKey]({ land, metaverse }) {

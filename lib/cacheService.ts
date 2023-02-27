@@ -18,7 +18,7 @@ export const setLands = (lands: any[], metaverse: Metaverse) => {
 }
 
 export const getLand = (tokenId: string, metaverse: Metaverse) => {
-    console.log(metaverse,tokenId, metaverses[metaverse][tokenId])
+     
     return metaverses[metaverse][tokenId]
 }
 
