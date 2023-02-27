@@ -105,5 +105,4 @@ child.on('exit', (err) => {
 
 
 downloadStart()
-setInterval(downloadStart, 6000000)
-
+setInterval(downloadStart, 600000)
