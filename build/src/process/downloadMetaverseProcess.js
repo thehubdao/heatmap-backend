@@ -93,6 +93,7 @@ const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
 });
 const setListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     const listings = yield getListings(metaverse);
+    console.log(listings);
     for (const listing of listings) {
         try {
             let { tokenId } = listing;

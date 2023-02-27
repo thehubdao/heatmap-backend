@@ -102,6 +102,7 @@ const getListings = async (metaverse: Metaverse) => {
 
 const setListings = async (metaverse: Metaverse) => {
     const listings = await getListings(metaverse as Metaverse)
+    console.log(listings)
     for (const listing of listings) {
         try {
             let { tokenId } = listing
