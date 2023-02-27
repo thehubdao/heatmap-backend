@@ -17,6 +17,7 @@ const setLands = (lands, metaverse) => {
 };
 exports.setLands = setLands;
 const getLand = (tokenId, metaverse) => {
+    console.log(metaverse, tokenId, metaverses[metaverse][tokenId]);
     return metaverses[metaverse][tokenId];
 };
 exports.getLand = getLand;
