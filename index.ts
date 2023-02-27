@@ -9,7 +9,6 @@ import { fork } from 'child_process'
 import { getLand, setLands, setLand } from './lib/cacheService'
 import { ProcessMessages } from './types/process'
 import { config } from 'dotenv'
-import { setBulkMetaverseKeys } from './lib/utils/metaverseService'
 import { Metaverse } from './types/metaverse'
 import { join } from 'path'
 
@@ -19,18 +18,9 @@ config()
 const app = require('express')()
 const fs = require('fs');
 app.use(cors())
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/heatmap.itrmachines.com/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/heatmap.itrmachines.com/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/heatmap.itrmachines.com/chain.pem', 'utf8');
-
-const credentials = {
-	key: privateKey,
-	cert: certificate,
-	ca: ca
-};
 
 
-const server = require('https').createServer(credentials,app)
+const server = require('https').createServer(app)
 const Server = require('socket.io').Server
 const port = process.env.PORT || 3005
 const io = new Server(server, {
@@ -42,7 +32,7 @@ const io = new Server(server, {
 
 io.on(socketReceiverMessages.socketConnect, async (socket: Socket) => {
     clientConnect(socket)
-    socket.on('connect_error', (err) => {
+    socket.on('connect_error', (err:any) => {
         console.log(`connect_error due to ${err.message}`)
     })
     defineHandlers(socket, socketMessagesController(socket))
