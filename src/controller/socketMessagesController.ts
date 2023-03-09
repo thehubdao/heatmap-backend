@@ -10,15 +10,15 @@ import {
     socketSenderMessages,
 } from '../../types/socket'
 
-export const socketMessagesController = (socket: Socket) => {
+export const socketMessagesController = (socket: any) => {
     return {
         [socketReceiverMessages.socketDisconnect]: (
             disconnectReason: string
         ) => {
             clientDisconnect(disconnectReason, socket)
         },
-        [socketReceiverMessages.renderStart]: async (metaverse: Metaverse, landIndex:number) => {
-            await renderStart(socket, metaverse,landIndex)
+        [socketReceiverMessages.renderStart]: async ([metaverse, landIndex]) => {
+            await renderStart(socket, metaverse, landIndex)
         },
         /*         [socketReceiverMessages.getLand]: async (metaverse:Metaverse, index:number)=>{
             await giveLand(socket,metaverse,index)

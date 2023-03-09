@@ -1,8 +1,6 @@
-import { Socket } from 'socket.io'
-import { defineHandlers } from './lib/utils/socketUtils'
-import { socketMessagesController } from './src/controller/socketMessagesController'
+import { onMessage } from './lib/utils/socketUtils'
 import cors from 'cors'
-import { getLimitsController, setMetaverseCalcs } from './src/controller/limitsController'
+import { setMetaverseCalcs } from './src/controller/limitsController'
 import { clientConnect } from './lib/socketService'
 import { socketReceiverMessages } from './types/socket'
 import { fork } from 'child_process'
@@ -11,36 +9,28 @@ import { ProcessMessages } from './types/process'
 import { config } from 'dotenv'
 import { Metaverse } from './types/metaverse'
 import { join } from 'path'
+import { WebSocketServer } from 'ws';
 
 config()
 
-const app = require('express')()
-app.use(cors())
-const server = require('http').createServer(app)
-const Server = require('socket.io').Server
-const port = process.env.PORT || 3005
-const io = new Server(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST'],
-    },
-})
+const PORT = process.env.PORT as string
 
-io.on(socketReceiverMessages.socketConnect, async (socket: Socket) => {
-    clientConnect(socket)
-    socket.on('connect_error', (err) => {
-        console.log(`connect_error due to ${err.message}`)
-    })
-    defineHandlers(socket, socketMessagesController(socket))
-})
+const wss = new WebSocketServer({ port: Number(PORT)});
 
-server.listen(port, () => {
-    console.log('Sockets listening on port: ' + port)
-})
+wss.on(socketReceiverMessages.socketConnect, function connection(ws) {
+    clientConnect(ws)
+    ws.on('error', console.error);
 
-app.get('/limits', getLimitsController)
+    ws.on('message', (receivedData: any) => {
+        const parsedData = receivedData.toString()
 
-app.get('/',(req:any,res:any)=>{res.send("SERVER WORKING")})
+        const [message, messageData] = parsedData.split('|')
+
+        onMessage(ws, message, messageData)
+
+    });
+});
+
 
 const child = fork(
     join(__dirname, '/src/process/downloadMetaverseProcess'), ['node --max-old-space-size=8192 build/index.js']

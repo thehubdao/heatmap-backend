@@ -1,9 +1,14 @@
-import { Socket } from 'socket.io'
-import { Controller } from '../../types/socket'
+import { socketMessagesController } from '../../src/controller/socketMessagesController'
 
-export const defineHandlers = (socket: Socket, handlers: Controller) => {
-    const handlerKeys = Object.keys(handlers)
-    handlerKeys.forEach((key) => {
-        socket.on(key, handlers[key])
-    })
+export const onMessage = (socket: any, message: string, messageRawData: any) => {
+    const messageHandler = socketMessagesController(socket)[message]
+
+    if (!messageHandler) return
+
+    const messageData = messageRawData.split(';')
+
+    try { messageHandler(messageData) } catch (err) { console.log(err) }
+
+
+
 }
