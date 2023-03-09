@@ -22,7 +22,7 @@ const renderStart = (socket, metaverse, landIndex = 0) => __awaiter(void 0, void
 exports.renderStart = renderStart;
 const formatLand = (land, metaverse) => {
     const { eth_predicted_price, floor_adjusted_predicted_price, tokenId } = land;
-    const { x, y } = land.coords;
+    const { x, y } = land.coords ? land.coords : land.center;
     let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price};${tokenId}`;
     if (metaverse != 'decentraland')
         return formattedLand;

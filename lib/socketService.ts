@@ -13,7 +13,7 @@ export const renderStart = async (socket: Socket, metaverse: Metaverse, landInde
 
 const formatLand = (land: any, metaverse: Metaverse) => {
     const { eth_predicted_price, floor_adjusted_predicted_price, tokenId } = land
-    const { x, y } = land.coords
+    const { x, y } = land.coords ? land.coords:land.center
     let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price};${tokenId}`
 
     if (metaverse != 'decentraland') return formattedLand

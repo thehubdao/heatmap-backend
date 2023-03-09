@@ -23,12 +23,10 @@ const cacheService_1 = require("./lib/cacheService");
 const process_1 = require("./types/process");
 const dotenv_1 = require("dotenv");
 const path_1 = require("path");
-let pidusage = require('pidusage');
 (0, dotenv_1.config)();
 const app = require('express')();
-const fs = require('fs');
 app.use((0, cors_1.default)());
-const server = require('https').createServer(app);
+const server = require('http').createServer(app);
 const Server = require('socket.io').Server;
 const port = process.env.PORT || 3005;
 const io = new Server(server, {
@@ -48,6 +46,7 @@ server.listen(port, () => {
     console.log('Sockets listening on port: ' + port);
 });
 app.get('/limits', limitsController_1.getLimitsController);
+app.get('/', (req, res) => { res.send("SERVER WORKING"); });
 const child = (0, child_process_1.fork)((0, path_1.join)(__dirname, '/src/process/downloadMetaverseProcess'), ['node --max-old-space-size=8192 build/index.js']);
 const processMessages = {
     [process_1.ProcessMessages.newMetaverseChunk]({ chunk, metaverse }) {

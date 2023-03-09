@@ -12,14 +12,10 @@ import { config } from 'dotenv'
 import { Metaverse } from './types/metaverse'
 import { join } from 'path'
 
-let pidusage = require('pidusage');
 config()
 
 const app = require('express')()
-const fs = require('fs');
 app.use(cors())
-
-
 const server = require('http').createServer(app)
 const Server = require('socket.io').Server
 const port = process.env.PORT || 3005
@@ -32,7 +28,7 @@ const io = new Server(server, {
 
 io.on(socketReceiverMessages.socketConnect, async (socket: Socket) => {
     clientConnect(socket)
-    socket.on('connect_error', (err:any) => {
+    socket.on('connect_error', (err) => {
         console.log(`connect_error due to ${err.message}`)
     })
     defineHandlers(socket, socketMessagesController(socket))
@@ -43,6 +39,8 @@ server.listen(port, () => {
 })
 
 app.get('/limits', getLimitsController)
+
+app.get('/',(req:any,res:any)=>{res.send("SERVER WORKING")})
 
 const child = fork(
     join(__dirname, '/src/process/downloadMetaverseProcess'), ['node --max-old-space-size=8192 build/index.js']
