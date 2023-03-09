@@ -17,12 +17,27 @@ const renderStart = (socket, metaverse, landIndex = 0) => __awaiter(void 0, void
     const metaverseLands = Object.values((0, cacheService_1.getMetaverse)(metaverse));
     console.log('render-start', metaverse, landIndex, metaverseLands.length - landIndex);
     (0, firebaseService_1.updateStats)(metaverse);
-    yield renderLands(socket, metaverseLands, landIndex);
+    yield renderLands(socket, metaverseLands, landIndex, metaverse);
 });
 exports.renderStart = renderStart;
-const renderLands = (socket, lands, landCurrentIndex) => __awaiter(void 0, void 0, void 0, function* () {
+const formatLand = (land, metaverse) => {
+    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId } = land;
+    const { x, y } = land.coords;
+    let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price};${tokenId}`;
+    if (metaverse != 'decentraland')
+        return formattedLand;
+    const { type, top, left, topLeft } = land.tile;
+    formattedLand += type !== null && type !== void 0 ? type : `;${type}`;
+    formattedLand += top !== null && top !== void 0 ? top : `;${top}`;
+    formattedLand += left !== null && left !== void 0 ? left : `;${left}`;
+    formattedLand += topLeft !== null && topLeft !== void 0 ? topLeft : `;${topLeft}`;
+    return formattedLand;
+};
+const renderLands = (socket, lands, landCurrentIndex, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     for (let landIndex = landCurrentIndex; landIndex < lands.length; landIndex++) {
-        socket.emit(socket_1.socketSenderMessages.newLandData, lands[landIndex], landIndex);
+        const land = lands[landIndex];
+        const formattedLand = formatLand(land, metaverse);
+        socket.emit(socket_1.socketSenderMessages.newLandData, formattedLand, landIndex);
     }
     socket.emit(socket_1.socketSenderMessages.renderFinish);
 });

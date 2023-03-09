@@ -1,25 +1,43 @@
 import { Socket } from 'socket.io'
 import { Metaverse } from '../types/metaverse'
 import { socketReceiverMessages, socketSenderMessages } from '../types/socket'
-import { getMetaverse, getLand } from './cacheService'
+import { getMetaverse } from './cacheService'
 import { updateStats } from './firebaseService'
-import { getMetaverseKeys } from './utils/metaverseService'
 
 export const renderStart = async (socket: Socket, metaverse: Metaverse, landIndex: number = 0) => {
     const metaverseLands = Object.values(getMetaverse(metaverse))
     console.log('render-start', metaverse, landIndex, metaverseLands.length - landIndex)
     updateStats(metaverse)
-    await renderLands(socket, metaverseLands, landIndex)
+    await renderLands(socket, metaverseLands, landIndex, metaverse)
 }
 
+const formatLand = (land: any, metaverse: Metaverse) => {
+    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId } = land
+    const { x, y } = land.coords
+    let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price};${tokenId}`
 
+    if (metaverse != 'decentraland') return formattedLand
+
+    const { type, top, left, topLeft } = land.tile
+
+    formattedLand += type ?? `;${type}`
+    formattedLand += top ?? `;${top}`
+    formattedLand += left ?? `;${left}`
+    formattedLand += topLeft ?? `;${topLeft}`
+
+    return formattedLand
+}
 const renderLands = async (
     socket: Socket,
     lands: any[],
-    landCurrentIndex: number
+    landCurrentIndex: number,
+    metaverse: Metaverse
 ) => {
     for (let landIndex = landCurrentIndex; landIndex < lands.length; landIndex++) {
-        socket.emit(socketSenderMessages.newLandData, lands[landIndex], landIndex)
+        const land: any = lands[landIndex]
+        const formattedLand = formatLand(land, metaverse)
+
+        socket.emit(socketSenderMessages.newLandData, formattedLand, landIndex)
     }
     socket.emit(socketSenderMessages.renderFinish)
 }

@@ -20,7 +20,7 @@ const fs = require('fs');
 app.use(cors())
 
 
-const server = require('https').createServer(app)
+const server = require('http').createServer(app)
 const Server = require('socket.io').Server
 const port = process.env.PORT || 3005
 const io = new Server(server, {

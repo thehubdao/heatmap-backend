@@ -5,7 +5,7 @@ import { Metaverse } from '../types/metaverse'
 
 config()
 
-var serviceAccount:any = {
+const serviceAccount:any = {
     "type": "service_account",
     "project_id": process.env.FIREBASE_PROJECT_ID,
     "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
