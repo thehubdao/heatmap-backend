@@ -17,12 +17,18 @@ config()
 
 const PORT = process.env.PORT as string
 
-const key = fs.readFileSync('./key-rsa.pem');
-    const cert = fs.readFileSync('./cert.pem');
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/heatmapws.itrmachines.com/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/heatmapws.itrmachines.com/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/heatmapws.itrmachines.com/chain.pem', 'utf8');
 
-const server = https.createServer({key,cert},function(req: any, res: any) {
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
 
-});
+
+const server = https.createServer(credentials,(req: any, res: any)=>{})
 
 const wss = new WebSocket.Server({ server });
 
