@@ -37,41 +37,37 @@ const renderLands = (socket, lands, landCurrentIndex, metaverse) => __awaiter(vo
     for (let landIndex = landCurrentIndex; landIndex < lands.length; landIndex++) {
         const land = lands[landIndex];
         const formattedLand = formatLand(land, metaverse);
-        socket.emit(socket_1.socketSenderMessages.newLandData, formattedLand, landIndex);
+        socket.send(`${socket_1.socketSenderMessages.newLandData}|${formattedLand},${landIndex}`);
     }
-    socket.emit(socket_1.socketSenderMessages.renderFinish);
+    socket.send(socket_1.socketSenderMessages.renderFinish);
 });
 const pingPong = (socket) => {
-    const pingInterval = 5000, pongInterval = 10000;
-    socket.pingInterval = setInterval(() => {
-        socket.emit(socket_1.socketSenderMessages.ping);
-    }, pingInterval);
-    const setPongInterval = (socket) => {
-        clearInterval(socket.pongInterval);
-        socket.pongInterval = setInterval(() => {
-            console.log('Disconnect');
-            socket.disconnect(true);
-            clearInterval(socket.pingInterval);
-            clearInterval(socket.pongInterval);
-        }, pongInterval);
-    };
-    socket.on(socket_1.socketReceiverMessages.pong, () => {
-        setPongInterval(socket);
-    });
-    setPongInterval(socket);
+    /*     const pingInterval = 5000,
+            pongInterval = 10000
+        socket.pingInterval = setInterval(() => {
+            socket.emit(socketSenderMessages.ping)
+        }, pingInterval)
+        const setPongInterval = (socket: any) => {
+            clearInterval(socket.pongInterval)
+            socket.pongInterval = setInterval(() => {
+                console.log('Disconnect')
+                socket.disconnect(true)
+                clearInterval(socket.pingInterval)
+                clearInterval(socket.pongInterval)
+            }, pongInterval)
+        }
+        socket.on(socketReceiverMessages.pong, () => {
+            setPongInterval(socket)
+        })
+        setPongInterval(socket) */
 };
 exports.pingPong = pingPong;
 const clientConnect = (socket) => {
     (0, exports.pingPong)(socket);
     console.log('CONNECTION', new Date().toISOString());
-    console.log('ip: ' + socket.request.connection.remoteAddress);
-    console.log('user-agent: ' + socket.request.headers['user-agent']);
-    console.log(socket.id);
 };
 exports.clientConnect = clientConnect;
 const clientDisconnect = (disconnectReason, socket) => {
     console.log(disconnectReason);
-    console.log('ip: ' + socket.request.connection.remoteAddress);
-    console.log('user-agent: ' + socket.request.headers['user-agent']);
 };
 exports.clientDisconnect = clientDisconnect;

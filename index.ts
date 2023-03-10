@@ -10,13 +10,17 @@ import { config } from 'dotenv'
 import { Metaverse } from './types/metaverse'
 import { join } from 'path'
 import WebSocket from 'ws';
-const http = require('http');
+import * as fs from 'fs';
+const https = require('https');
 
 config()
 
 const PORT = process.env.PORT as string
 
-const server = http.createServer(function(req: any, res: any) {
+const key = fs.readFileSync('./key-rsa.pem');
+    const cert = fs.readFileSync('./cert.pem');
+
+const server = https.createServer({key,cert},function(req: any, res: any) {
 
 });
 

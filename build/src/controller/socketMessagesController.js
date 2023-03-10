@@ -17,7 +17,7 @@ const socketMessagesController = (socket) => {
         [socket_1.socketReceiverMessages.socketDisconnect]: (disconnectReason) => {
             (0, socketService_1.clientDisconnect)(disconnectReason, socket);
         },
-        [socket_1.socketReceiverMessages.renderStart]: (metaverse, landIndex) => __awaiter(void 0, void 0, void 0, function* () {
+        [socket_1.socketReceiverMessages.renderStart]: ([metaverse, landIndex]) => __awaiter(void 0, void 0, void 0, function* () {
             yield (0, socketService_1.renderStart)(socket, metaverse, landIndex);
         }),
         /*         [socketReceiverMessages.getLand]: async (metaverse:Metaverse, index:number)=>{

@@ -8,13 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const socketUtils_1 = require("./lib/utils/socketUtils");
-const socketMessagesController_1 = require("./src/controller/socketMessagesController");
-const cors_1 = __importDefault(require("cors"));
 const limitsController_1 = require("./src/controller/limitsController");
 const socketService_1 = require("./lib/socketService");
 const socket_1 = require("./types/socket");
@@ -23,30 +18,19 @@ const cacheService_1 = require("./lib/cacheService");
 const process_1 = require("./types/process");
 const dotenv_1 = require("dotenv");
 const path_1 = require("path");
+const ws_1 = require("ws");
 (0, dotenv_1.config)();
-const app = require('express')();
-app.use((0, cors_1.default)());
-const server = require('http').createServer(app);
-const Server = require('socket.io').Server;
-const port = process.env.PORT || 3005;
-const io = new Server(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST'],
-    },
-});
-io.on(socket_1.socketReceiverMessages.socketConnect, (socket) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, socketService_1.clientConnect)(socket);
-    socket.on('connect_error', (err) => {
-        console.log(`connect_error due to ${err.message}`);
+const PORT = process.env.PORT;
+const wss = new ws_1.WebSocketServer({ port: Number(PORT) });
+wss.on(socket_1.socketReceiverMessages.socketConnect, function connection(ws) {
+    (0, socketService_1.clientConnect)(ws);
+    ws.on('error', console.error);
+    ws.on('message', (receivedData) => {
+        const parsedData = receivedData.toString();
+        const [message, messageData] = parsedData.split('|');
+        (0, socketUtils_1.onMessage)(ws, message, messageData);
     });
-    (0, socketUtils_1.defineHandlers)(socket, (0, socketMessagesController_1.socketMessagesController)(socket));
-}));
-server.listen(port, () => {
-    console.log('Sockets listening on port: ' + port);
 });
-app.get('/limits', limitsController_1.getLimitsController);
-app.get('/', (req, res) => { res.send("SERVER WORKING"); });
 const child = (0, child_process_1.fork)((0, path_1.join)(__dirname, '/src/process/downloadMetaverseProcess'), ['node --max-old-space-size=8192 build/index.js']);
 const processMessages = {
     [process_1.ProcessMessages.newMetaverseChunk]({ chunk, metaverse }) {
