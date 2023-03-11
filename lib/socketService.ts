@@ -20,10 +20,10 @@ const formatLand = (land: any, metaverse: Metaverse) => {
 
     const { type, top, left, topLeft } = land.tile
 
-    formattedLand += type ?? `;${type}`
-    formattedLand += top ?? `;${top}`
-    formattedLand += left ?? `;${left}`
-    formattedLand += topLeft ?? `;${topLeft}`
+    formattedLand += type ? `;${type}` : ';'
+    formattedLand += top ? `;${top}` : ';'
+    formattedLand += left ? `;${left}` : ';'
+    formattedLand += topLeft ? `;${topLeft}` : ';'
 
     return formattedLand
 }
