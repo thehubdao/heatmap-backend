@@ -21,16 +21,27 @@ const renderStart = (socket, metaverse, landIndex = 0) => __awaiter(void 0, void
 });
 exports.renderStart = renderStart;
 const formatLand = (land, metaverse) => {
-    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId } = land;
+    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId, current_price_eth } = land;
     const { x, y } = land.coords ? land.coords : land.center;
-    let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price};${tokenId}`;
+    let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price}`;
+    formattedLand += current_price_eth ? `;${current_price_eth}` : `;`;
+    formattedLand += `;${tokenId}`;
+    if (metaverse == 'somnium-space') {
+        const { geometry } = land;
+        formattedLand += `;`;
+        geometry.forEach(({ x, y }, i) => {
+            formattedLand += `${x}:${y}`;
+            if (i < geometry.length - 1)
+                formattedLand += `/`;
+        });
+    }
     if (metaverse != 'decentraland')
         return formattedLand;
     const { type, top, left, topLeft } = land.tile;
-    formattedLand += type !== null && type !== void 0 ? type : `;${type}`;
-    formattedLand += top !== null && top !== void 0 ? top : `;${top}`;
-    formattedLand += left !== null && left !== void 0 ? left : `;${left}`;
-    formattedLand += topLeft !== null && topLeft !== void 0 ? topLeft : `;${topLeft}`;
+    formattedLand += type ? `;${type}` : ';';
+    formattedLand += top ? `;${top}` : ';';
+    formattedLand += left ? `;${left}` : ';';
+    formattedLand += topLeft ? `;${topLeft}` : ';';
     return formattedLand;
 };
 const renderLands = (socket, lands, landCurrentIndex, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
