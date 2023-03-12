@@ -12,9 +12,22 @@ export const renderStart = async (socket: any, metaverse: Metaverse, landIndex: 
 }
 
 const formatLand = (land: any, metaverse: Metaverse) => {
-    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId } = land
+    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId, current_price_eth } = land
     const { x, y } = land.coords ? land.coords : land.center
-    let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price};${tokenId}`
+    let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price}`
+
+    formattedLand += current_price_eth ? `;${current_price_eth}` : `;`
+    formattedLand += `;${tokenId}`
+
+    if (metaverse == 'somnium-space') {
+        const {geometry} = land
+        formattedLand += `;`
+        geometry.forEach(({ x, y }: any, i: any) => {
+            formattedLand += `${x}:${y}`
+            if (i < geometry.length - 1) formattedLand += `/`
+        });
+
+    }
 
     if (metaverse != 'decentraland') return formattedLand
 
