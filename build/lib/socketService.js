@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clientDisconnect = exports.clientConnect = exports.pingPong = exports.renderStart = void 0;
+exports.clientDisconnect = exports.clientConnect = exports.pingPong = exports.getLandByToken = exports.renderStart = void 0;
 const socket_1 = require("../types/socket");
 const cacheService_1 = require("./cacheService");
 const firebaseService_1 = require("./firebaseService");
@@ -20,6 +20,11 @@ const renderStart = (socket, metaverse, landIndex = 0) => __awaiter(void 0, void
     yield renderLands(socket, metaverseLands, landIndex, metaverse);
 });
 exports.renderStart = renderStart;
+const getLandByToken = (socket, metaverse, tokenId) => __awaiter(void 0, void 0, void 0, function* () {
+    const land = JSON.stringify((0, cacheService_1.getLand)(tokenId, metaverse));
+    socket.send(`${socket_1.socketSenderMessages.giveLand}|${land}`);
+});
+exports.getLandByToken = getLandByToken;
 const formatLand = (land, metaverse) => {
     const { eth_predicted_price, floor_adjusted_predicted_price, tokenId, current_price_eth } = land;
     const { x, y } = land.coords ? land.coords : land.center;
