@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io'
 import { Metaverse } from '../types/metaverse'
 import { socketReceiverMessages, socketSenderMessages } from '../types/socket'
-import { getMetaverse } from './cacheService'
+import { getMetaverse, getLand } from './cacheService'
 import { updateStats } from './firebaseService'
 
 export const renderStart = async (socket: any, metaverse: Metaverse, landIndex: number = 0) => {
@@ -10,6 +10,12 @@ export const renderStart = async (socket: any, metaverse: Metaverse, landIndex: 
     updateStats(metaverse)
     await renderLands(socket, metaverseLands, landIndex, metaverse)
 }
+
+export const getLandByToken = async (socket: any, metaverse: Metaverse, tokenId: string) => {
+    const land = JSON.stringify(getLand(tokenId, metaverse))
+    socket.send(`${socketSenderMessages.giveLand}|${land}`)
+}
+
 
 const formatLand = (land: any, metaverse: Metaverse) => {
     const { eth_predicted_price, floor_adjusted_predicted_price, tokenId, current_price_eth } = land
@@ -20,7 +26,7 @@ const formatLand = (land: any, metaverse: Metaverse) => {
     formattedLand += `;${tokenId}`
 
     if (metaverse == 'somnium-space') {
-        const {geometry} = land
+        const { geometry } = land
         formattedLand += `;`
         geometry.forEach(({ x, y }: any, i: any) => {
             formattedLand += `${x}:${y}`
