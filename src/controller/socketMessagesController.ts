@@ -1,7 +1,8 @@
 import { Socket } from 'socket.io'
+import { getLand } from '../../lib/cacheService'
 import {
     clientDisconnect,
-    renderContinue,
+    getLandByToken,
     renderStart,
 } from '../../lib/socketService'
 import { Metaverse } from '../../types/metaverse'
@@ -11,21 +12,18 @@ import {
     socketSenderMessages,
 } from '../../types/socket'
 
-export const socketMessagesController = (socket: Socket) => {
+export const socketMessagesController = (socket: any) => {
     return {
         [socketReceiverMessages.socketDisconnect]: (
             disconnectReason: string
         ) => {
             clientDisconnect(disconnectReason, socket)
         },
-        [socketReceiverMessages.renderStart]: async (metaverse: Metaverse) => {
-            await renderStart(socket, metaverse)
+        [socketReceiverMessages.renderStart]: async ([metaverse, landIndex]) => {
+            await renderStart(socket, metaverse, landIndex)
         },
-        /*         [socketReceiverMessages.getLand]: async (metaverse:Metaverse, index:number)=>{
-            await giveLand(socket,metaverse,index)
-        }, */
-        [socketReceiverMessages.renderContinue]: async (metaverse: Metaverse, keyIndex:number) => {
-            await renderContinue(socket,metaverse,keyIndex)
+        [socketReceiverMessages.getLand]: async ([metaverse, tokenId]) => {
+            await getLandByToken(socket, metaverse, tokenId)
         },
         [socketReceiverMessages.renderBulk]: async (
             metaverse: Metaverse,

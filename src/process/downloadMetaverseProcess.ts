@@ -76,9 +76,9 @@ const getListings = async (metaverse: Metaverse) => {
         process.env.OPENSEA_SERVICE_URL +
         `/opensea/collections/${metaverse}/listings`
     let listings: Array<any> = []
+    try {
+        for (let i = 0; ; i += landsChunkLimit) {
 
-    for (let i = 0; ; i += landsChunkLimit) {
-        try {
             const listingRequestUrl = `${listingUrl}?from=${i}&size=${landsChunkLimit}`
             const listingsRequest = await axios.get(listingRequestUrl, {
                 headers: {
@@ -90,14 +90,19 @@ const getListings = async (metaverse: Metaverse) => {
             if (listingsChunk.length == 0) return listings
 
             listings = listings.concat(listingsChunk)
-        } catch (err) {
-            console.log(err)
+
         }
+    } catch (err) {
+        console.log(err)
+        return []
     }
+    
+
 }
 
 const setListings = async (metaverse: Metaverse) => {
     const listings = await getListings(metaverse as Metaverse)
+    /* console.log(listings) */
     for (const listing of listings) {
         try {
             let { tokenId } = listing
@@ -110,13 +115,12 @@ const setListings = async (metaverse: Metaverse) => {
             const land = await getLandPromise
             const { currentPrice } = listing
             if (currentPrice) land.current_price_eth = currentPrice.eth_price
-
             sendParentMessage(ProcessMessages.setCacheKey, {
                 metaverse,
                 land,
             })
         } catch (error) {
-            console.log(error)
+             console.log(error)
         }
     }
 }
