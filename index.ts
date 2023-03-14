@@ -9,21 +9,31 @@ import { ProcessMessages } from './types/process'
 import { config } from 'dotenv'
 import { Metaverse } from './types/metaverse'
 import { join } from 'path'
+import * as fs from 'fs';
 import WebSocket from 'ws';
-const http = require('http');
+
+const https = require('https');
 
 config()
 
 const PORT = process.env.PORT as string
 
-const server = http.createServer(function(req: any, res: any) {
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/heatmap.itrmachines.com/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/heatmap.itrmachines.com/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/heatmap.itrmachines.com/chain.pem', 'utf8');
 
-});
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
+
+
+const server = https.createServer(credentials,(req: any, res: any)=>{})
 
 const wss = new WebSocket.Server({ server });
 
 server.listen(PORT);
-
 /* const wss = new WebSocketServer({ port: Number(PORT)}); */
 
 wss.on(socketReceiverMessages.socketConnect, function connection(ws) {
