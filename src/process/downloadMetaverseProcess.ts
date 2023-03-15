@@ -63,8 +63,10 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
             const land: any = landChunk[key]
             const max_history_price = CalculateMaxPriceOnHistoryDependGivenDays(land, 30)
             const history_amount = land.history.length
+            land.tokenId = key
             land.history_amount = history_amount ? history_amount : ''
             land.max_history_price = max_history_price ? max_history_price : ''
+            
             return land
         })
         sendParentMessage(ProcessMessages.newMetaverseChunk, { metaverse, chunk: landsFormatted })
