@@ -6,6 +6,28 @@ import {
 } from '../../lib/utils/metaverseUtils'
 import { ProcessMessages } from '../../types/process'
 
+const CalculateMaxPriceOnHistoryDependGivenDays = (
+    landFromAtlas: any,
+    givenDays: number
+) => {
+    let maxPrice = 0
+    let now = new Date()
+    let deathLine = now.setDate(now.getDate() - givenDays)
+    landFromAtlas.history?.map((historyPoint: any) => {
+        let historyTime = new Date(historyPoint.timestamp).getTime()
+        if (historyTime > deathLine) {
+            historyPoint
+                ? (maxPrice =
+                    historyPoint.eth_price > maxPrice
+                        ? historyPoint.eth_price
+                        : maxPrice)
+                : 0
+        }
+    })
+
+    return maxPrice
+}
+
 const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
     try {
         const landsChunkLimit = heatmapMvLandsPerRequest[metaverse].lands
@@ -39,7 +61,10 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
         }
         const landsFormatted = landChunkKeys.map((key: any) => {
             const land: any = landChunk[key]
-            land.tokenId = key
+            const max_history_price = CalculateMaxPriceOnHistoryDependGivenDays(land, 30)
+            const history_amount = land.history.length
+            land.history_amount = history_amount ? history_amount : ''
+            land.max_history_price = max_history_price ? max_history_price : ''
             return land
         })
         sendParentMessage(ProcessMessages.newMetaverseChunk, { metaverse, chunk: landsFormatted })
@@ -96,7 +121,7 @@ const getListings = async (metaverse: Metaverse) => {
         console.log(err)
         return []
     }
-    
+
 
 }
 
@@ -120,7 +145,7 @@ const setListings = async (metaverse: Metaverse) => {
                 land,
             })
         } catch (error) {
-             console.log(error)
+            console.log(error)
         }
     }
 }
