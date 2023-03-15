@@ -18,12 +18,12 @@ export const getLandByToken = async (socket: any, metaverse: Metaverse, tokenId:
 
 
 const formatLand = (land: any, metaverse: Metaverse) => {
-    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId, current_price_eth } = land
+    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId, current_price_eth, history_amount, max_history_price } = land
     const { x, y } = land.coords ? land.coords : land.center
     let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price}`
 
     formattedLand += current_price_eth ? `;${current_price_eth}` : `;`
-    formattedLand += `;${tokenId}`
+    formattedLand += `;${history_amount};${max_history_price};${tokenId}`
 
     if (metaverse == 'somnium-space') {
         const { geometry } = land
