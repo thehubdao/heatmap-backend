@@ -65,6 +65,7 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
             const land = landChunk[key];
             const max_history_price = CalculateMaxPriceOnHistoryDependGivenDays(land, 30);
             const history_amount = land.history.length;
+            land.tokenId = key;
             land.history_amount = history_amount ? history_amount : '';
             land.max_history_price = max_history_price ? max_history_price : '';
             return land;
