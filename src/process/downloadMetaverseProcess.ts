@@ -13,18 +13,18 @@ const CalculateMaxPriceOnHistoryDependGivenDays = (
     let maxPrice = 0
     let now = new Date()
     let deathLine = now.setDate(now.getDate() - givenDays)
-    landFromAtlas.history?.map((historyPoint: any) => {
+    const sellHistory = landFromAtlas.history.filter((transaction: any) => transaction.action == 'Bought')
+    sellHistory.map((historyPoint: any) => {
         let historyTime = new Date(historyPoint.timestamp).getTime()
         if (historyTime > deathLine) {
-            historyPoint
-                ? (maxPrice =
-                    historyPoint.eth_price > maxPrice
-                        ? historyPoint.eth_price
-                        : maxPrice)
-                : 0
-        }
-    })
+            maxPrice =
+                historyPoint.eth_price > maxPrice
+                    ? historyPoint.eth_price
+                    : maxPrice
 
+        }
+
+    })
     return maxPrice
 }
 
@@ -66,7 +66,6 @@ const requestMetaverseMap = async (i: number, metaverse: Metaverse) => {
             land.tokenId = key
             land.history_amount = history_amount ? history_amount : ''
             land.max_history_price = max_history_price ? max_history_price : ''
-            
             return land
         })
         sendParentMessage(ProcessMessages.newMetaverseChunk, { metaverse, chunk: landsFormatted })
