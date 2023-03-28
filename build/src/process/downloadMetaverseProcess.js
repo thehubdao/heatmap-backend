@@ -17,19 +17,17 @@ const metaverse_1 = require("../../types/metaverse");
 const metaverseUtils_1 = require("../../lib/utils/metaverseUtils");
 const process_1 = require("../../types/process");
 const CalculateMaxPriceOnHistoryDependGivenDays = (landFromAtlas, givenDays) => {
-    var _a;
     let maxPrice = 0;
     let now = new Date();
     let deathLine = now.setDate(now.getDate() - givenDays);
-    (_a = landFromAtlas.history) === null || _a === void 0 ? void 0 : _a.map((historyPoint) => {
+    const sellHistory = landFromAtlas.history.filter((transaction) => transaction.action == 'Bought');
+    sellHistory.map((historyPoint) => {
         let historyTime = new Date(historyPoint.timestamp).getTime();
         if (historyTime > deathLine) {
-            historyPoint
-                ? (maxPrice =
-                    historyPoint.eth_price > maxPrice
-                        ? historyPoint.eth_price
-                        : maxPrice)
-                : 0;
+            maxPrice =
+                historyPoint.eth_price > maxPrice
+                    ? historyPoint.eth_price
+                    : maxPrice;
         }
     });
     return maxPrice;
