@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io'
 import { Metaverse } from '../types/metaverse'
-import { socketReceiverMessages, socketSenderMessages } from '../types/socket'
+import { socketSenderMessages } from '../types/socket'
 import { getMetaverse, getLand } from './cacheService'
 import { updateStats } from './firebaseService'
 
@@ -18,12 +18,18 @@ export const getLandByToken = async (socket: any, metaverse: Metaverse, tokenId:
 
 
 const formatLand = (land: any, metaverse: Metaverse) => {
-    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId, current_price_eth, history_amount, max_history_price } = land
+    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId, current_price_eth, history_amount, max_history_price, land_type } = land
     const { x, y } = land.coords ? land.coords : land.center
     let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price}`
 
     formattedLand += current_price_eth ? `;${current_price_eth}` : `;`
     formattedLand += `;${history_amount};${max_history_price};${tokenId}`
+
+    if (metaverse == 'sandbox') {
+        if (land_type == 'Premium')
+            formattedLand += `;${1}`
+        return formattedLand
+    }
 
     if (metaverse == 'somnium-space') {
         const { geometry } = land
@@ -32,10 +38,9 @@ const formatLand = (land: any, metaverse: Metaverse) => {
             formattedLand += `${x}:${y}`
             if (i < geometry.length - 1) formattedLand += `/`
         });
-
+        return formattedLand
     }
 
-    if (metaverse != 'decentraland') return formattedLand
 
     const { type, top, left, topLeft } = land.tile
 
