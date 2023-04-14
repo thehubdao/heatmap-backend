@@ -46,6 +46,8 @@ const formatLand = (land, metaverse) => {
         });
         return formattedLand;
     }
+    if (!land.tile)
+        return formattedLand;
     const { type, top, left, topLeft } = land.tile;
     formattedLand += type ? `;${type}` : ';';
     formattedLand += top ? `;${top}` : ';';

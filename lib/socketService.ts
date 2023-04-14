@@ -41,7 +41,7 @@ const formatLand = (land: any, metaverse: Metaverse) => {
         return formattedLand
     }
 
-
+    if(!land.tile) return formattedLand
     const { type, top, left, topLeft } = land.tile
 
     formattedLand += type ? `;${type}` : ';'
