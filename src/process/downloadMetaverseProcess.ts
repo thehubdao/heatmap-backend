@@ -97,11 +97,12 @@ const requestMetaverseLands = async (metaverse: Metaverse) => {
 }
 
 const getListings = async (metaverse: Metaverse) => {
-    const landsChunkLimit = heatmapMvLandsPerRequest[metaverse].lands
+    const landsChunkLimit = 500
     const listingUrl =
         process.env.OPENSEA_SERVICE_URL +
         `/opensea/collections/${metaverse}/listings`
     let listings: Array<any> = []
+    
     try {
         for (let i = 0; ; i += landsChunkLimit) {
 
@@ -113,11 +114,14 @@ const getListings = async (metaverse: Metaverse) => {
             })
 
             const listingsChunk = listingsRequest.data.result
-            if (listingsChunk.length == 0) return listings
+            if (listingsChunk.length == 0) {
+                console.log(listings.length, metaverse, "Listings")
+                return listings}
 
             listings = listings.concat(listingsChunk)
 
         }
+
     } catch (err) {
         console.log(err)
         return []
