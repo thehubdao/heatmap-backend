@@ -88,7 +88,7 @@ const requestMetaverseLands = (metaverse) => __awaiter(void 0, void 0, void 0, f
     }
 });
 const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
-    const landsChunkLimit = metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands;
+    const landsChunkLimit = 500;
     const listingUrl = process.env.OPENSEA_SERVICE_URL +
         `/opensea/collections/${metaverse}/listings`;
     let listings = [];
@@ -101,8 +101,10 @@ const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
                 },
             });
             const listingsChunk = listingsRequest.data.result;
-            if (listingsChunk.length == 0)
+            if (listingsChunk.length == 0) {
+                console.log(listings.length, metaverse, "Listings");
                 return listings;
+            }
             listings = listings.concat(listingsChunk);
         }
     }
