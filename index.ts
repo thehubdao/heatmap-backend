@@ -16,8 +16,10 @@ config()
 
 const PORT = process.env.PORT as string
 
-const server = http.createServer(function(req: any, res: any) {
-
+const server = http.createServer(function (req: any, res: any) {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.write('Hello World!');
+  res.end();
 });
 
 const wss = new WebSocket.Server({ server });

@@ -3,7 +3,6 @@ FROM node:${NODE_VERSION}-alpine as pkg-base
 WORKDIR /usr/src/app
 COPY . .
 RUN npm install
-WORKDIR /usr/src/app/build
 
-EXPOSE 8101
-CMD [ "node", "index.js" ]
+EXPOSE 80
+CMD [ "node", "./build/index.js" ]

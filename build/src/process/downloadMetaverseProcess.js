@@ -16,6 +16,22 @@ const axios_1 = __importDefault(require("axios"));
 const metaverse_1 = require("../../types/metaverse");
 const metaverseUtils_1 = require("../../lib/utils/metaverseUtils");
 const process_1 = require("../../types/process");
+const CalculateMaxPriceOnHistoryDependGivenDays = (landFromAtlas, givenDays) => {
+    let maxPrice = 0;
+    let now = new Date();
+    let deathLine = now.setDate(now.getDate() - givenDays);
+    const sellHistory = landFromAtlas.history.filter((transaction) => transaction.action == 'Bought');
+    sellHistory.map((historyPoint) => {
+        let historyTime = new Date(historyPoint.timestamp).getTime();
+        if (historyTime > deathLine) {
+            maxPrice =
+                historyPoint.eth_price > maxPrice
+                    ? historyPoint.eth_price
+                    : maxPrice;
+        }
+    });
+    return maxPrice;
+};
 const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const landsChunkLimit = metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands;
@@ -45,7 +61,11 @@ const requestMetaverseMap = (i, metaverse) => __awaiter(void 0, void 0, void 0, 
         }
         const landsFormatted = landChunkKeys.map((key) => {
             const land = landChunk[key];
+            const max_history_price = CalculateMaxPriceOnHistoryDependGivenDays(land, 30);
+            const history_amount = land.history.length;
             land.tokenId = key;
+            land.history_amount = history_amount ? history_amount : '';
+            land.max_history_price = max_history_price ? max_history_price : '';
             return land;
         });
         sendParentMessage(process_1.ProcessMessages.newMetaverseChunk, { metaverse, chunk: landsFormatted });
@@ -68,7 +88,7 @@ const requestMetaverseLands = (metaverse) => __awaiter(void 0, void 0, void 0, f
     }
 });
 const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* () {
-    const landsChunkLimit = metaverseUtils_1.heatmapMvLandsPerRequest[metaverse].lands;
+    const landsChunkLimit = 500;
     const listingUrl = process.env.OPENSEA_SERVICE_URL +
         `/opensea/collections/${metaverse}/listings`;
     let listings = [];
@@ -81,8 +101,10 @@ const getListings = (metaverse) => __awaiter(void 0, void 0, void 0, function* (
                 },
             });
             const listingsChunk = listingsRequest.data.result;
-            if (listingsChunk.length == 0)
+            if (listingsChunk.length == 0) {
+                console.log(listings.length, metaverse, "Listings");
                 return listings;
+            }
             listings = listings.concat(listingsChunk);
         }
     }

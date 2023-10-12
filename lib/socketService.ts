@@ -58,10 +58,13 @@ const renderLands = async (
     metaverse: Metaverse
 ) => {
     for (let landIndex = landCurrentIndex; landIndex < lands.length; landIndex++) {
-        const land: any = lands[landIndex]
-        const formattedLand = formatLand(land, metaverse)
+        try {
+            const land: any = lands[landIndex]
+            const formattedLand = formatLand(land, metaverse)
 
-        socket.send(`${socketSenderMessages.newLandData}|${formattedLand},${landIndex}`,)
+            socket.send(`${socketSenderMessages.newLandData}|${formattedLand},${landIndex}`,)
+        } catch (err) { console.log("Land error: " + err) }
+
     }
     socket.send(socketSenderMessages.renderFinish)
 }

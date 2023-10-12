@@ -19,7 +19,10 @@ export const socketMessagesController = (socket: any) => {
         ) => {
             clientDisconnect(disconnectReason, socket)
         },
-        [socketReceiverMessages.renderStart]: async ([metaverse, landIndex]) => {
+        [socketReceiverMessages.renderStart]: async (args) => {
+            const metaverse: Metaverse = args[0]
+            const landIndex: number = args[1]
+
             await renderStart(socket, metaverse, landIndex)
         },
         [socketReceiverMessages.getLand]: async ([metaverse, tokenId]) => {

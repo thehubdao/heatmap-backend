@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clientDisconnect = exports.clientConnect = exports.pingPong = exports.renderStart = void 0;
+exports.clientDisconnect = exports.clientConnect = exports.pingPong = exports.getLandByToken = exports.renderStart = void 0;
 const socket_1 = require("../types/socket");
 const cacheService_1 = require("./cacheService");
 const firebaseService_1 = require("./firebaseService");
@@ -20,58 +20,79 @@ const renderStart = (socket, metaverse, landIndex = 0) => __awaiter(void 0, void
     yield renderLands(socket, metaverseLands, landIndex, metaverse);
 });
 exports.renderStart = renderStart;
+const getLandByToken = (socket, metaverse, tokenId) => __awaiter(void 0, void 0, void 0, function* () {
+    const land = JSON.stringify((0, cacheService_1.getLand)(tokenId, metaverse));
+    socket.send(`${socket_1.socketSenderMessages.giveLand}|${land}`);
+});
+exports.getLandByToken = getLandByToken;
 const formatLand = (land, metaverse) => {
-    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId } = land;
+    const { eth_predicted_price, floor_adjusted_predicted_price, tokenId, current_price_eth, history_amount, max_history_price, land_type } = land;
     const { x, y } = land.coords ? land.coords : land.center;
-    let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price};${tokenId}`;
-    if (metaverse != 'decentraland')
+    let formattedLand = `${x};${y};${eth_predicted_price};${floor_adjusted_predicted_price}`;
+    formattedLand += current_price_eth ? `;${current_price_eth}` : `;`;
+    formattedLand += `;${history_amount};${max_history_price};${tokenId}`;
+    if (metaverse == 'sandbox') {
+        if (land_type == 'Premium')
+            formattedLand += `;${1}`;
         return formattedLand;
+    }
+    if (metaverse == 'somnium-space') {
+        const { geometry } = land;
+        formattedLand += `;`;
+        geometry.forEach(({ x, y }, i) => {
+            formattedLand += `${x}:${y}`;
+            if (i < geometry.length - 1)
+                formattedLand += `/`;
+        });
+        return formattedLand;
+    }
     const { type, top, left, topLeft } = land.tile;
-    formattedLand += type !== null && type !== void 0 ? type : `;${type}`;
-    formattedLand += top !== null && top !== void 0 ? top : `;${top}`;
-    formattedLand += left !== null && left !== void 0 ? left : `;${left}`;
-    formattedLand += topLeft !== null && topLeft !== void 0 ? topLeft : `;${topLeft}`;
+    formattedLand += type ? `;${type}` : ';';
+    formattedLand += top ? `;${top}` : ';';
+    formattedLand += left ? `;${left}` : ';';
+    formattedLand += topLeft ? `;${topLeft}` : ';';
     return formattedLand;
 };
 const renderLands = (socket, lands, landCurrentIndex, metaverse) => __awaiter(void 0, void 0, void 0, function* () {
     for (let landIndex = landCurrentIndex; landIndex < lands.length; landIndex++) {
-        const land = lands[landIndex];
-        const formattedLand = formatLand(land, metaverse);
-        socket.emit(socket_1.socketSenderMessages.newLandData, formattedLand, landIndex);
+        try {
+            const land = lands[landIndex];
+            const formattedLand = formatLand(land, metaverse);
+            socket.send(`${socket_1.socketSenderMessages.newLandData}|${formattedLand},${landIndex}`);
+        }
+        catch (err) {
+            console.log("Land error: " + err);
+        }
     }
-    socket.emit(socket_1.socketSenderMessages.renderFinish);
+    socket.send(socket_1.socketSenderMessages.renderFinish);
 });
 const pingPong = (socket) => {
-    const pingInterval = 5000, pongInterval = 10000;
-    socket.pingInterval = setInterval(() => {
-        socket.emit(socket_1.socketSenderMessages.ping);
-    }, pingInterval);
-    const setPongInterval = (socket) => {
-        clearInterval(socket.pongInterval);
-        socket.pongInterval = setInterval(() => {
-            console.log('Disconnect');
-            socket.disconnect(true);
-            clearInterval(socket.pingInterval);
-            clearInterval(socket.pongInterval);
-        }, pongInterval);
-    };
-    socket.on(socket_1.socketReceiverMessages.pong, () => {
-        setPongInterval(socket);
-    });
-    setPongInterval(socket);
+    /*     const pingInterval = 5000,
+            pongInterval = 10000
+        socket.pingInterval = setInterval(() => {
+            socket.emit(socketSenderMessages.ping)
+        }, pingInterval)
+        const setPongInterval = (socket: any) => {
+            clearInterval(socket.pongInterval)
+            socket.pongInterval = setInterval(() => {
+                console.log('Disconnect')
+                socket.disconnect(true)
+                clearInterval(socket.pingInterval)
+                clearInterval(socket.pongInterval)
+            }, pongInterval)
+        }
+        socket.on(socketReceiverMessages.pong, () => {
+            setPongInterval(socket)
+        })
+        setPongInterval(socket) */
 };
 exports.pingPong = pingPong;
 const clientConnect = (socket) => {
     (0, exports.pingPong)(socket);
     console.log('CONNECTION', new Date().toISOString());
-    console.log('ip: ' + socket.request.connection.remoteAddress);
-    console.log('user-agent: ' + socket.request.headers['user-agent']);
-    console.log(socket.id);
 };
 exports.clientConnect = clientConnect;
 const clientDisconnect = (disconnectReason, socket) => {
     console.log(disconnectReason);
-    console.log('ip: ' + socket.request.connection.remoteAddress);
-    console.log('user-agent: ' + socket.request.headers['user-agent']);
 };
 exports.clientDisconnect = clientDisconnect;
